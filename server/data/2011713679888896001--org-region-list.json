@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "廖家堡社区卫生服务站",
+        "lungTestCount": 1,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 1759,
+        "screeningCount": 1759
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

@@ -1,0 +1,80 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "institutionName": "沌阳街沌阳社区卫生服务中心",
+        "copdCount": 240
+      },
+      {
+        "institutionName": "武汉亚心总医院",
+        "copdCount": 4
+      },
+      {
+        "institutionName": "军山街卫生院",
+        "copdCount": 3
+      },
+      {
+        "institutionName": "沌口街沌口社区卫生服务中心",
+        "copdCount": 2
+      },
+      {
+        "institutionName": "东荆社区卫生服务站(汉纸医院)",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "东荆街卫生院",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "军山街川江池社区卫生服务中心",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "廖家堡社区卫生服务站",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "汉南区人民医院",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "沌阳街新民社区卫生服务中心",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "沌阳街薛峰社区卫生服务中心",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "湘口街卫生院",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "碧湖社区卫生服务站",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "纱帽街卫生服务中心(红十字会医院)",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "纱帽街卫生院（汉南区中医医院）",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "邓南街卫生院",
+        "copdCount": 0
+      },
+      {
+        "institutionName": "阳光城社区卫生服务站(名逸医院)",
+        "copdCount": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

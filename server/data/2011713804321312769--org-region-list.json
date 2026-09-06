@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "汉南区人民医院",
+        "lungTestCount": 0,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 0,
+        "screeningCount": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

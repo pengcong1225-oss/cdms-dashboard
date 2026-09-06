@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "纱帽街卫生院（汉南区中医医院）",
+        "shortName": "纱帽",
+        "hospitalLevel": 1,
+        "lng": 114.076677,
+        "lat": 30.30132,
+        "labelLng": 114.048748,
+        "labelLat": 30.147704,
+        "screeningCount": 1285,
+        "copdCount": 0,
+        "bronchodilationCount": 5,
+        "bronchodilationPositiveCount": 4,
+        "bronchodilationPositiveRate": 80
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

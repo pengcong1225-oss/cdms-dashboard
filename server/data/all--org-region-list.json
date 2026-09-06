@@ -1,0 +1,131 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "军山街卫生院",
+        "lungTestCount": 165,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 2661,
+        "screeningCount": 2751
+      },
+      {
+        "communityName": "沌阳街新民社区卫生服务中心",
+        "lungTestCount": 507,
+        "bronchodilationCount": 288,
+        "questionnaireCount": 2408,
+        "screeningCount": 2719
+      },
+      {
+        "communityName": "沌阳街沌阳社区卫生服务中心",
+        "lungTestCount": 622,
+        "bronchodilationCount": 7,
+        "questionnaireCount": 2413,
+        "screeningCount": 2668
+      },
+      {
+        "communityName": "廖家堡社区卫生服务站",
+        "lungTestCount": 1,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 1759,
+        "screeningCount": 1759
+      },
+      {
+        "communityName": "沌口街沌口社区卫生服务中心",
+        "lungTestCount": 287,
+        "bronchodilationCount": 7,
+        "questionnaireCount": 1552,
+        "screeningCount": 1747
+      },
+      {
+        "communityName": "东荆街卫生院",
+        "lungTestCount": 166,
+        "bronchodilationCount": 31,
+        "questionnaireCount": 1454,
+        "screeningCount": 1552
+      },
+      {
+        "communityName": "武汉亚心总医院",
+        "lungTestCount": 1496,
+        "bronchodilationCount": 10,
+        "questionnaireCount": 104,
+        "screeningCount": 1520
+      },
+      {
+        "communityName": "碧湖社区卫生服务站",
+        "lungTestCount": 58,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 1377,
+        "screeningCount": 1403
+      },
+      {
+        "communityName": "邓南街卫生院",
+        "lungTestCount": 122,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 1263,
+        "screeningCount": 1368
+      },
+      {
+        "communityName": "东荆社区卫生服务站(汉纸医院)",
+        "lungTestCount": 118,
+        "bronchodilationCount": 1,
+        "questionnaireCount": 1222,
+        "screeningCount": 1297
+      },
+      {
+        "communityName": "纱帽街卫生院（汉南区中医医院）",
+        "lungTestCount": 89,
+        "bronchodilationCount": 5,
+        "questionnaireCount": 1215,
+        "screeningCount": 1285
+      },
+      {
+        "communityName": "沌阳街薛峰社区卫生服务中心",
+        "lungTestCount": 1,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 1193,
+        "screeningCount": 1193
+      },
+      {
+        "communityName": "军山街川江池社区卫生服务中心",
+        "lungTestCount": 178,
+        "bronchodilationCount": 22,
+        "questionnaireCount": 965,
+        "screeningCount": 1117
+      },
+      {
+        "communityName": "纱帽街卫生服务中心(红十字会医院)",
+        "lungTestCount": 5,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 997,
+        "screeningCount": 999
+      },
+      {
+        "communityName": "湘口街卫生院",
+        "lungTestCount": 74,
+        "bronchodilationCount": 3,
+        "questionnaireCount": 694,
+        "screeningCount": 751
+      },
+      {
+        "communityName": "阳光城社区卫生服务站(名逸医院)",
+        "lungTestCount": 0,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 378,
+        "screeningCount": 378
+      },
+      {
+        "communityName": "汉南区人民医院",
+        "lungTestCount": 0,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 0,
+        "screeningCount": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

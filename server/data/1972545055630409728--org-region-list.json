@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "纱帽街卫生服务中心(红十字会医院)",
+        "lungTestCount": 5,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 997,
+        "screeningCount": 999
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

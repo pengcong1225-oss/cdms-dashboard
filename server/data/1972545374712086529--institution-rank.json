@@ -1,0 +1,16 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "institutionName": "沌阳街沌阳社区卫生服务中心",
+        "copdCount": 240
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

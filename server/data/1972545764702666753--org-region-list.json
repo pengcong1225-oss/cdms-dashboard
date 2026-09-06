@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "军山街卫生院",
+        "lungTestCount": 165,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 2661,
+        "screeningCount": 2751
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

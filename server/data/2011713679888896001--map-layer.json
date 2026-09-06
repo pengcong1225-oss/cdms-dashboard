@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "廖家堡社区卫生服务站",
+        "shortName": "廖家堡",
+        "hospitalLevel": 1,
+        "lng": 114.084738,
+        "lat": 30.32213,
+        "labelLng": 114.138012,
+        "labelLat": 30.264014,
+        "screeningCount": 1759,
+        "copdCount": 0,
+        "bronchodilationCount": 0,
+        "bronchodilationPositiveCount": 0,
+        "bronchodilationPositiveRate": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

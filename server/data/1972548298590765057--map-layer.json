@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "武汉亚心总医院",
+        "shortName": "亚心",
+        "hospitalLevel": 3,
+        "lng": 114.202856,
+        "lat": 30.500731,
+        "labelLng": 114.308686,
+        "labelLat": 30.499123,
+        "screeningCount": 1520,
+        "copdCount": 4,
+        "bronchodilationCount": 10,
+        "bronchodilationPositiveCount": 3,
+        "bronchodilationPositiveRate": 30
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

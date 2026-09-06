@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "阳光城社区卫生服务站(名逸医院)",
+        "shortName": "名逸",
+        "hospitalLevel": 1,
+        "lng": 114.15686,
+        "lat": 30.497857,
+        "labelLng": 114.155988,
+        "labelLat": 30.57168,
+        "screeningCount": 378,
+        "copdCount": 0,
+        "bronchodilationCount": 0,
+        "bronchodilationPositiveCount": 0,
+        "bronchodilationPositiveRate": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

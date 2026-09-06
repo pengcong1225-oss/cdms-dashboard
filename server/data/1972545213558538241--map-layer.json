@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "东荆街卫生院",
+        "shortName": "东荆街",
+        "hospitalLevel": 1,
+        "lng": 114.054787,
+        "lat": 30.343593,
+        "labelLng": 113.968162,
+        "labelLat": 30.39448,
+        "screeningCount": 1552,
+        "copdCount": 0,
+        "bronchodilationCount": 31,
+        "bronchodilationPositiveCount": 12,
+        "bronchodilationPositiveRate": 38.71
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

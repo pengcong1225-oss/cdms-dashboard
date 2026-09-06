@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "军山街川江池社区卫生服务中心",
+        "lungTestCount": 178,
+        "bronchodilationCount": 22,
+        "questionnaireCount": 965,
+        "screeningCount": 1117
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "沌阳街薛峰社区卫生服务中心",
+        "shortName": "薛峰",
+        "hospitalLevel": 1,
+        "lng": 114.0942,
+        "lat": 30.460629,
+        "labelLng": 113.98521,
+        "labelLat": 30.469335,
+        "screeningCount": 1193,
+        "copdCount": 0,
+        "bronchodilationCount": 0,
+        "bronchodilationPositiveCount": 0,
+        "bronchodilationPositiveRate": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

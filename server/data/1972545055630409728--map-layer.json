@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "纱帽街卫生服务中心(红十字会医院)",
+        "shortName": "红十字会",
+        "hospitalLevel": 1,
+        "lng": 114.076826,
+        "lat": 30.306959,
+        "labelLng": 114.125653,
+        "labelLat": 30.200535,
+        "screeningCount": 999,
+        "copdCount": 0,
+        "bronchodilationCount": 0,
+        "bronchodilationPositiveCount": 0,
+        "bronchodilationPositiveRate": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

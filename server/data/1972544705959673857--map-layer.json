@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "军山街川江池社区卫生服务中心",
+        "shortName": "川江池",
+        "hospitalLevel": 1,
+        "lng": 114.13108,
+        "lat": 30.366966,
+        "labelLng": 114.143684,
+        "labelLat": 30.321737,
+        "screeningCount": 1117,
+        "copdCount": 0,
+        "bronchodilationCount": 22,
+        "bronchodilationPositiveCount": 7,
+        "bronchodilationPositiveRate": 31.82
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

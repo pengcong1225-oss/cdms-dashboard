@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "武汉亚心总医院",
+        "lungTestCount": 1496,
+        "bronchodilationCount": 10,
+        "questionnaireCount": 104,
+        "screeningCount": 1520
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

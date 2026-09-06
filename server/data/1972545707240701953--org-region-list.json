@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "沌口街沌口社区卫生服务中心",
+        "lungTestCount": 287,
+        "bronchodilationCount": 7,
+        "questionnaireCount": 1552,
+        "screeningCount": 1747
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

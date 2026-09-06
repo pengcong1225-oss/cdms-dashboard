@@ -1,0 +1,38 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "monthlyScreeningCounts": [
+      3,
+      12,
+      445,
+      274,
+      156,
+      284,
+      39,
+      54,
+      19,
+      0,
+      0,
+      0
+    ],
+    "monthlyCopdCounts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

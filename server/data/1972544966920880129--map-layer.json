@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "东荆社区卫生服务站(汉纸医院)",
+        "shortName": "汉纸",
+        "hospitalLevel": 1,
+        "lng": 114.201877,
+        "lat": 30.460156,
+        "labelLng": 114.203471,
+        "labelLat": 30.287483,
+        "screeningCount": 1297,
+        "copdCount": 0,
+        "bronchodilationCount": 1,
+        "bronchodilationPositiveCount": 0,
+        "bronchodilationPositiveRate": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

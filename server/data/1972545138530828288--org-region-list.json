@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "邓南街卫生院",
+        "lungTestCount": 122,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 1263,
+        "screeningCount": 1368
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

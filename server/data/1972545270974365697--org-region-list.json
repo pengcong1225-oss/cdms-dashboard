@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "湘口街卫生院",
+        "lungTestCount": 74,
+        "bronchodilationCount": 3,
+        "questionnaireCount": 694,
+        "screeningCount": 751
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

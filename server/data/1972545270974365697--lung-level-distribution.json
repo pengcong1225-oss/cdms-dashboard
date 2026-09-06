@@ -1,0 +1,22 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "categories": [
+      "轻度",
+      "中度",
+      "重度",
+      "极重度"
+    ],
+    "values": [
+      57,
+      8,
+      4,
+      5
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

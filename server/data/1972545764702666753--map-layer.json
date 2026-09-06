@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "军山街卫生院",
+        "shortName": "军山",
+        "hospitalLevel": 1,
+        "lng": 114.089013,
+        "lat": 30.407548,
+        "labelLng": 114.005584,
+        "labelLat": 30.424385,
+        "screeningCount": 2751,
+        "copdCount": 3,
+        "bronchodilationCount": 0,
+        "bronchodilationPositiveCount": 0,
+        "bronchodilationPositiveRate": 0
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

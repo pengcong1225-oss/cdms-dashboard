@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "湘口街卫生院",
+        "shortName": "湘口",
+        "hospitalLevel": 1,
+        "lng": 113.856951,
+        "lat": 30.262156,
+        "labelLng": 113.851973,
+        "labelLat": 30.335084,
+        "screeningCount": 751,
+        "copdCount": 0,
+        "bronchodilationCount": 3,
+        "bronchodilationPositiveCount": 1,
+        "bronchodilationPositiveRate": 33.33
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

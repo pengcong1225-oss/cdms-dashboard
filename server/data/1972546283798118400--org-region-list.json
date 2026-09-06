@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "阳光城社区卫生服务站(名逸医院)",
+        "lungTestCount": 0,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 378,
+        "screeningCount": 378
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

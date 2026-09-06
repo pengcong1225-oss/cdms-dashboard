@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "碧湖社区卫生服务站",
+        "lungTestCount": 58,
+        "bronchodilationCount": 0,
+        "questionnaireCount": 1377,
+        "screeningCount": 1403
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

@@ -1,0 +1,32 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "items": [
+      {
+        "name": "一级",
+        "value": 397,
+        "color": "#1ed9ff"
+      },
+      {
+        "name": "二级",
+        "value": 96,
+        "color": "#ffd858"
+      },
+      {
+        "name": "三级",
+        "value": 11,
+        "color": "#4be38c"
+      },
+      {
+        "name": "四级",
+        "value": 3,
+        "color": "#ff8754"
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

@@ -1,0 +1,168 @@
+{
+  "1972545764702666753": {
+    "name": "军山街卫生院",
+    "shortName": "军山",
+    "hospitalLevel": 1,
+    "lng": 114.089013,
+    "lat": 30.407548,
+    "labelLng": 114.005584,
+    "labelLat": 30.424385,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972545633966211073": {
+    "name": "沌阳街新民社区卫生服务中心",
+    "shortName": "新民",
+    "hospitalLevel": 1,
+    "lng": 114.180928,
+    "lat": 30.51158,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972545374712086529": {
+    "name": "沌阳街沌阳社区卫生服务中心",
+    "shortName": "沌阳",
+    "hospitalLevel": 1,
+    "lng": 114.150313,
+    "lat": 30.48889,
+    "labelLng": 114.050505,
+    "labelLat": 30.500099,
+    "source": "legacy-map-layer-name-match"
+  },
+  "2011713679888896001": {
+    "name": "廖家堡社区卫生服务站",
+    "shortName": "廖家堡",
+    "hospitalLevel": 1,
+    "lng": 114.084738,
+    "lat": 30.32213,
+    "labelLng": 114.138012,
+    "labelLat": 30.264014,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972545707240701953": {
+    "name": "沌口街沌口社区卫生服务中心",
+    "shortName": "沌口",
+    "hospitalLevel": 1,
+    "lng": 114.191311,
+    "lat": 30.459557,
+    "labelLng": 114.176175,
+    "labelLat": 30.380612,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972545213558538241": {
+    "name": "东荆街卫生院",
+    "shortName": "东荆街",
+    "hospitalLevel": 1,
+    "lng": 114.054787,
+    "lat": 30.343593,
+    "labelLng": 113.968162,
+    "labelLat": 30.39448,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972548298590765057": {
+    "name": "武汉亚心总医院",
+    "shortName": "亚心",
+    "hospitalLevel": 3,
+    "lng": 114.202856,
+    "lat": 30.500731,
+    "labelLng": 114.308686,
+    "labelLat": 30.499123,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972546359492722689": {
+    "name": "碧湖社区卫生服务站",
+    "shortName": "碧湖",
+    "hospitalLevel": 1,
+    "lng": 114.153553,
+    "lat": 30.504992,
+    "labelLng": 114.107582,
+    "labelLat": 30.523514,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972545138530828288": {
+    "name": "邓南街卫生院",
+    "shortName": "邓南",
+    "hospitalLevel": 1,
+    "lng": 113.98719,
+    "lat": 30.300029,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972544966920880129": {
+    "name": "东荆社区卫生服务站(汉纸医院)",
+    "shortName": "汉纸",
+    "hospitalLevel": 1,
+    "lng": 114.201877,
+    "lat": 30.460156,
+    "labelLng": 114.203471,
+    "labelLat": 30.287483,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972544323070050305": {
+    "name": "纱帽街卫生院（汉南区中医医院）",
+    "shortName": "纱帽",
+    "hospitalLevel": 1,
+    "lng": 114.076677,
+    "lat": 30.30132,
+    "labelLng": 114.048748,
+    "labelLat": 30.147704,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972545554287017985": {
+    "name": "沌阳街薛峰社区卫生服务中心",
+    "shortName": "薛峰",
+    "hospitalLevel": 1,
+    "lng": 114.0942,
+    "lat": 30.460629,
+    "labelLng": 113.98521,
+    "labelLat": 30.469335,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972544705959673857": {
+    "name": "军山街川江池社区卫生服务中心",
+    "shortName": "川江池",
+    "hospitalLevel": 1,
+    "lng": 114.13108,
+    "lat": 30.366966,
+    "labelLng": 114.143684,
+    "labelLat": 30.321737,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972545055630409728": {
+    "name": "纱帽街卫生服务中心(红十字会医院)",
+    "shortName": "红十字会",
+    "hospitalLevel": 1,
+    "lng": 114.076826,
+    "lat": 30.306959,
+    "labelLng": 114.125653,
+    "labelLat": 30.200535,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972545270974365697": {
+    "name": "湘口街卫生院",
+    "shortName": "湘口",
+    "hospitalLevel": 1,
+    "lng": 113.856951,
+    "lat": 30.262156,
+    "labelLng": 113.851973,
+    "labelLat": 30.335084,
+    "source": "legacy-map-layer-name-match"
+  },
+  "1972546283798118400": {
+    "name": "阳光城社区卫生服务站(名逸医院)",
+    "shortName": "名逸",
+    "hospitalLevel": 1,
+    "lng": 114.15686,
+    "lat": 30.497857,
+    "labelLng": 114.155988,
+    "labelLat": 30.57168,
+    "source": "legacy-map-layer-name-match"
+  },
+  "2011713804321312769": {
+    "name": "汉南区人民医院",
+    "shortName": "汉南",
+    "hospitalLevel": 1,
+    "lng": 114.074024,
+    "lat": 30.313558,
+    "labelLng": 114.005413,
+    "labelLat": 30.24117,
+    "source": "legacy-map-layer-name-match"
+  }
+}

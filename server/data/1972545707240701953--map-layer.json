@@ -1,0 +1,26 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "沌口街沌口社区卫生服务中心",
+        "shortName": "沌口",
+        "hospitalLevel": 1,
+        "lng": 114.191311,
+        "lat": 30.459557,
+        "labelLng": 114.176175,
+        "labelLat": 30.380612,
+        "screeningCount": 1747,
+        "copdCount": 2,
+        "bronchodilationCount": 7,
+        "bronchodilationPositiveCount": 2,
+        "bronchodilationPositiveRate": 28.57
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

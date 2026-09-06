@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "东荆街卫生院",
+        "lungTestCount": 166,
+        "bronchodilationCount": 31,
+        "questionnaireCount": 1454,
+        "screeningCount": 1552
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

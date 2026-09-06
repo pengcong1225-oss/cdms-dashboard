@@ -1,0 +1,9 @@
+node_modules/
+.env
+artifacts/reference/
+artifacts/*.log
+artifacts/*.pid
+artifacts/*.json
+artifacts/database-schema.json
+dist/
+web/node_modules/

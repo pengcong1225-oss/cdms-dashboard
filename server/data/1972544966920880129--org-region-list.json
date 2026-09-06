@@ -1,0 +1,19 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "list": [
+      {
+        "communityName": "东荆社区卫生服务站(汉纸医院)",
+        "lungTestCount": 118,
+        "bronchodilationCount": 1,
+        "questionnaireCount": 1222,
+        "screeningCount": 1297
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

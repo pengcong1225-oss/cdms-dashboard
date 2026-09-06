@@ -1,0 +1,17 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "screeningCount": 2668,
+    "lungTestCount": 622,
+    "copdCount": 240,
+    "followUpCount": 727,
+    "bronchodilationCount": 7,
+    "bronchodilationPositiveCount": 4,
+    "bronchodilationPositiveRate": 57.14
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}

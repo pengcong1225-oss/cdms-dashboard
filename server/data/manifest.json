@@ -1,0 +1,1106 @@
+{
+  "capturedAt": "2026-09-05T04:15:15.529Z",
+  "source": "https://agpay.lulife.net",
+  "scopes": [
+    "all",
+    "1972544966920880129",
+    "1972545213558538241",
+    "1972545764702666753",
+    "1972544705959673857",
+    "2011713679888896001",
+    "1972548298590765057",
+    "2011713804321312769",
+    "1972545707240701953",
+    "1972545633966211073",
+    "1972545374712086529",
+    "1972545554287017985",
+    "1972545270974365697",
+    "1972546359492722689",
+    "1972545055630409728",
+    "1972544323070050305",
+    "1972545138530828288",
+    "1972546283798118400"
+  ],
+  "entries": [
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "all",
+      "year": null,
+      "file": "all--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "all",
+      "year": 2026,
+      "file": "all--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "all",
+      "year": 2025,
+      "file": "all--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "all",
+      "year": 2024,
+      "file": "all--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "all",
+      "year": null,
+      "file": "all--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "all",
+      "year": null,
+      "file": "all--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "all",
+      "year": null,
+      "file": "all--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "all",
+      "year": null,
+      "file": "all--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "all",
+      "year": null,
+      "file": "all--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "all",
+      "year": null,
+      "file": "all--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972544966920880129",
+      "year": null,
+      "file": "1972544966920880129--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544966920880129",
+      "year": 2026,
+      "file": "1972544966920880129--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544966920880129",
+      "year": 2025,
+      "file": "1972544966920880129--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544966920880129",
+      "year": 2024,
+      "file": "1972544966920880129--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972544966920880129",
+      "year": null,
+      "file": "1972544966920880129--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972544966920880129",
+      "year": null,
+      "file": "1972544966920880129--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972544966920880129",
+      "year": null,
+      "file": "1972544966920880129--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972544966920880129",
+      "year": null,
+      "file": "1972544966920880129--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972544966920880129",
+      "year": null,
+      "file": "1972544966920880129--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972544966920880129",
+      "year": null,
+      "file": "1972544966920880129--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545213558538241",
+      "year": null,
+      "file": "1972545213558538241--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545213558538241",
+      "year": 2026,
+      "file": "1972545213558538241--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545213558538241",
+      "year": 2025,
+      "file": "1972545213558538241--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545213558538241",
+      "year": 2024,
+      "file": "1972545213558538241--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545213558538241",
+      "year": null,
+      "file": "1972545213558538241--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545213558538241",
+      "year": null,
+      "file": "1972545213558538241--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545213558538241",
+      "year": null,
+      "file": "1972545213558538241--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545213558538241",
+      "year": null,
+      "file": "1972545213558538241--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545213558538241",
+      "year": null,
+      "file": "1972545213558538241--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545213558538241",
+      "year": null,
+      "file": "1972545213558538241--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545764702666753",
+      "year": null,
+      "file": "1972545764702666753--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545764702666753",
+      "year": 2026,
+      "file": "1972545764702666753--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545764702666753",
+      "year": 2025,
+      "file": "1972545764702666753--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545764702666753",
+      "year": 2024,
+      "file": "1972545764702666753--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545764702666753",
+      "year": null,
+      "file": "1972545764702666753--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545764702666753",
+      "year": null,
+      "file": "1972545764702666753--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545764702666753",
+      "year": null,
+      "file": "1972545764702666753--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545764702666753",
+      "year": null,
+      "file": "1972545764702666753--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545764702666753",
+      "year": null,
+      "file": "1972545764702666753--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545764702666753",
+      "year": null,
+      "file": "1972545764702666753--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972544705959673857",
+      "year": null,
+      "file": "1972544705959673857--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544705959673857",
+      "year": 2026,
+      "file": "1972544705959673857--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544705959673857",
+      "year": 2025,
+      "file": "1972544705959673857--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544705959673857",
+      "year": 2024,
+      "file": "1972544705959673857--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972544705959673857",
+      "year": null,
+      "file": "1972544705959673857--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972544705959673857",
+      "year": null,
+      "file": "1972544705959673857--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972544705959673857",
+      "year": null,
+      "file": "1972544705959673857--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972544705959673857",
+      "year": null,
+      "file": "1972544705959673857--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972544705959673857",
+      "year": null,
+      "file": "1972544705959673857--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972544705959673857",
+      "year": null,
+      "file": "1972544705959673857--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "2011713679888896001",
+      "year": null,
+      "file": "2011713679888896001--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "2011713679888896001",
+      "year": 2026,
+      "file": "2011713679888896001--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "2011713679888896001",
+      "year": 2025,
+      "file": "2011713679888896001--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "2011713679888896001",
+      "year": 2024,
+      "file": "2011713679888896001--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "2011713679888896001",
+      "year": null,
+      "file": "2011713679888896001--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "2011713679888896001",
+      "year": null,
+      "file": "2011713679888896001--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "2011713679888896001",
+      "year": null,
+      "file": "2011713679888896001--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "2011713679888896001",
+      "year": null,
+      "file": "2011713679888896001--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "2011713679888896001",
+      "year": null,
+      "file": "2011713679888896001--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "2011713679888896001",
+      "year": null,
+      "file": "2011713679888896001--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972548298590765057",
+      "year": null,
+      "file": "1972548298590765057--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972548298590765057",
+      "year": 2026,
+      "file": "1972548298590765057--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972548298590765057",
+      "year": 2025,
+      "file": "1972548298590765057--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972548298590765057",
+      "year": 2024,
+      "file": "1972548298590765057--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972548298590765057",
+      "year": null,
+      "file": "1972548298590765057--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972548298590765057",
+      "year": null,
+      "file": "1972548298590765057--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972548298590765057",
+      "year": null,
+      "file": "1972548298590765057--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972548298590765057",
+      "year": null,
+      "file": "1972548298590765057--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972548298590765057",
+      "year": null,
+      "file": "1972548298590765057--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972548298590765057",
+      "year": null,
+      "file": "1972548298590765057--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "2011713804321312769",
+      "year": null,
+      "file": "2011713804321312769--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "2011713804321312769",
+      "year": 2026,
+      "file": "2011713804321312769--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "2011713804321312769",
+      "year": 2025,
+      "file": "2011713804321312769--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "2011713804321312769",
+      "year": 2024,
+      "file": "2011713804321312769--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "2011713804321312769",
+      "year": null,
+      "file": "2011713804321312769--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "2011713804321312769",
+      "year": null,
+      "file": "2011713804321312769--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "2011713804321312769",
+      "year": null,
+      "file": "2011713804321312769--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "2011713804321312769",
+      "year": null,
+      "file": "2011713804321312769--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "2011713804321312769",
+      "year": null,
+      "file": "2011713804321312769--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "2011713804321312769",
+      "year": null,
+      "file": "2011713804321312769--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545707240701953",
+      "year": null,
+      "file": "1972545707240701953--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545707240701953",
+      "year": 2026,
+      "file": "1972545707240701953--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545707240701953",
+      "year": 2025,
+      "file": "1972545707240701953--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545707240701953",
+      "year": 2024,
+      "file": "1972545707240701953--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545707240701953",
+      "year": null,
+      "file": "1972545707240701953--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545707240701953",
+      "year": null,
+      "file": "1972545707240701953--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545707240701953",
+      "year": null,
+      "file": "1972545707240701953--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545707240701953",
+      "year": null,
+      "file": "1972545707240701953--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545707240701953",
+      "year": null,
+      "file": "1972545707240701953--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545707240701953",
+      "year": null,
+      "file": "1972545707240701953--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545633966211073",
+      "year": null,
+      "file": "1972545633966211073--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545633966211073",
+      "year": 2026,
+      "file": "1972545633966211073--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545633966211073",
+      "year": 2025,
+      "file": "1972545633966211073--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545633966211073",
+      "year": 2024,
+      "file": "1972545633966211073--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545633966211073",
+      "year": null,
+      "file": "1972545633966211073--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545633966211073",
+      "year": null,
+      "file": "1972545633966211073--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545633966211073",
+      "year": null,
+      "file": "1972545633966211073--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545633966211073",
+      "year": null,
+      "file": "1972545633966211073--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545633966211073",
+      "year": null,
+      "file": "1972545633966211073--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545633966211073",
+      "year": null,
+      "file": "1972545633966211073--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545374712086529",
+      "year": null,
+      "file": "1972545374712086529--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545374712086529",
+      "year": 2026,
+      "file": "1972545374712086529--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545374712086529",
+      "year": 2025,
+      "file": "1972545374712086529--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545374712086529",
+      "year": 2024,
+      "file": "1972545374712086529--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545374712086529",
+      "year": null,
+      "file": "1972545374712086529--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545374712086529",
+      "year": null,
+      "file": "1972545374712086529--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545374712086529",
+      "year": null,
+      "file": "1972545374712086529--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545374712086529",
+      "year": null,
+      "file": "1972545374712086529--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545374712086529",
+      "year": null,
+      "file": "1972545374712086529--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545374712086529",
+      "year": null,
+      "file": "1972545374712086529--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545554287017985",
+      "year": null,
+      "file": "1972545554287017985--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545554287017985",
+      "year": 2026,
+      "file": "1972545554287017985--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545554287017985",
+      "year": 2025,
+      "file": "1972545554287017985--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545554287017985",
+      "year": 2024,
+      "file": "1972545554287017985--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545554287017985",
+      "year": null,
+      "file": "1972545554287017985--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545554287017985",
+      "year": null,
+      "file": "1972545554287017985--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545554287017985",
+      "year": null,
+      "file": "1972545554287017985--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545554287017985",
+      "year": null,
+      "file": "1972545554287017985--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545554287017985",
+      "year": null,
+      "file": "1972545554287017985--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545554287017985",
+      "year": null,
+      "file": "1972545554287017985--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545270974365697",
+      "year": null,
+      "file": "1972545270974365697--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545270974365697",
+      "year": 2026,
+      "file": "1972545270974365697--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545270974365697",
+      "year": 2025,
+      "file": "1972545270974365697--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545270974365697",
+      "year": 2024,
+      "file": "1972545270974365697--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545270974365697",
+      "year": null,
+      "file": "1972545270974365697--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545270974365697",
+      "year": null,
+      "file": "1972545270974365697--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545270974365697",
+      "year": null,
+      "file": "1972545270974365697--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545270974365697",
+      "year": null,
+      "file": "1972545270974365697--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545270974365697",
+      "year": null,
+      "file": "1972545270974365697--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545270974365697",
+      "year": null,
+      "file": "1972545270974365697--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972546359492722689",
+      "year": null,
+      "file": "1972546359492722689--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972546359492722689",
+      "year": 2026,
+      "file": "1972546359492722689--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972546359492722689",
+      "year": 2025,
+      "file": "1972546359492722689--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972546359492722689",
+      "year": 2024,
+      "file": "1972546359492722689--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972546359492722689",
+      "year": null,
+      "file": "1972546359492722689--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972546359492722689",
+      "year": null,
+      "file": "1972546359492722689--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972546359492722689",
+      "year": null,
+      "file": "1972546359492722689--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972546359492722689",
+      "year": null,
+      "file": "1972546359492722689--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972546359492722689",
+      "year": null,
+      "file": "1972546359492722689--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972546359492722689",
+      "year": null,
+      "file": "1972546359492722689--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545055630409728",
+      "year": null,
+      "file": "1972545055630409728--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545055630409728",
+      "year": 2026,
+      "file": "1972545055630409728--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545055630409728",
+      "year": 2025,
+      "file": "1972545055630409728--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545055630409728",
+      "year": 2024,
+      "file": "1972545055630409728--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545055630409728",
+      "year": null,
+      "file": "1972545055630409728--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545055630409728",
+      "year": null,
+      "file": "1972545055630409728--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545055630409728",
+      "year": null,
+      "file": "1972545055630409728--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545055630409728",
+      "year": null,
+      "file": "1972545055630409728--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545055630409728",
+      "year": null,
+      "file": "1972545055630409728--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545055630409728",
+      "year": null,
+      "file": "1972545055630409728--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972544323070050305",
+      "year": null,
+      "file": "1972544323070050305--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544323070050305",
+      "year": 2026,
+      "file": "1972544323070050305--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544323070050305",
+      "year": 2025,
+      "file": "1972544323070050305--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972544323070050305",
+      "year": 2024,
+      "file": "1972544323070050305--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972544323070050305",
+      "year": null,
+      "file": "1972544323070050305--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972544323070050305",
+      "year": null,
+      "file": "1972544323070050305--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972544323070050305",
+      "year": null,
+      "file": "1972544323070050305--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972544323070050305",
+      "year": null,
+      "file": "1972544323070050305--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972544323070050305",
+      "year": null,
+      "file": "1972544323070050305--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972544323070050305",
+      "year": null,
+      "file": "1972544323070050305--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972545138530828288",
+      "year": null,
+      "file": "1972545138530828288--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545138530828288",
+      "year": 2026,
+      "file": "1972545138530828288--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545138530828288",
+      "year": 2025,
+      "file": "1972545138530828288--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972545138530828288",
+      "year": 2024,
+      "file": "1972545138530828288--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972545138530828288",
+      "year": null,
+      "file": "1972545138530828288--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972545138530828288",
+      "year": null,
+      "file": "1972545138530828288--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972545138530828288",
+      "year": null,
+      "file": "1972545138530828288--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972545138530828288",
+      "year": null,
+      "file": "1972545138530828288--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972545138530828288",
+      "year": null,
+      "file": "1972545138530828288--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972545138530828288",
+      "year": null,
+      "file": "1972545138530828288--management-level-rating.json"
+    },
+    {
+      "endpoint": "lung-function-stats",
+      "scope": "1972546283798118400",
+      "year": null,
+      "file": "1972546283798118400--lung-function-stats.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972546283798118400",
+      "year": 2026,
+      "file": "1972546283798118400--abnormal-trend--2026.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972546283798118400",
+      "year": 2025,
+      "file": "1972546283798118400--abnormal-trend--2025.json"
+    },
+    {
+      "endpoint": "abnormal-trend",
+      "scope": "1972546283798118400",
+      "year": 2024,
+      "file": "1972546283798118400--abnormal-trend--2024.json"
+    },
+    {
+      "endpoint": "institution-rank",
+      "scope": "1972546283798118400",
+      "year": null,
+      "file": "1972546283798118400--institution-rank.json"
+    },
+    {
+      "endpoint": "map-layer",
+      "scope": "1972546283798118400",
+      "year": null,
+      "file": "1972546283798118400--map-layer.json"
+    },
+    {
+      "endpoint": "org-region-list",
+      "scope": "1972546283798118400",
+      "year": null,
+      "file": "1972546283798118400--org-region-list.json"
+    },
+    {
+      "endpoint": "lung-level-distribution",
+      "scope": "1972546283798118400",
+      "year": null,
+      "file": "1972546283798118400--lung-level-distribution.json"
+    },
+    {
+      "endpoint": "assessment-group-distribution",
+      "scope": "1972546283798118400",
+      "year": null,
+      "file": "1972546283798118400--assessment-group-distribution.json"
+    },
+    {
+      "endpoint": "management-level-rating",
+      "scope": "1972546283798118400",
+      "year": null,
+      "file": "1972546283798118400--management-level-rating.json"
+    }
+  ]
+}

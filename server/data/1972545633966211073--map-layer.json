@@ -1,0 +1,24 @@
+{
+  "extra": {},
+  "count": 0,
+  "data": {
+    "hospitalMarkers": [
+      {
+        "name": "沌阳街新民社区卫生服务中心",
+        "shortName": "新民",
+        "hospitalLevel": 1,
+        "lng": 114.180928,
+        "lat": 30.51158,
+        "screeningCount": 2719,
+        "copdCount": 0,
+        "bronchodilationCount": 288,
+        "bronchodilationPositiveCount": 62,
+        "bronchodilationPositiveRate": 21.53
+      }
+    ]
+  },
+  "msg": "操作成功",
+  "code": "200",
+  "nextStartIndex": 0,
+  "isEnd": 1
+}
