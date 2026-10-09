@@ -15,7 +15,7 @@ ${panel('institutions','机构工作量排行','年度事件',`<nav class="tabs"
 ${panel('monitoring','穿戴设备与预警动态','实时状态','<div id="wearable" class="mini-grid"></div><div class="subheading"><span>近60分钟新发活动预警</span><small>姓名脱敏</small></div><div id="alerts"></div>')}
 </aside><div class="center-column"><div id="metrics" class="metrics"></div>
 ${panel('geography','武汉经济技术开发区（汉南区）','机构分布',`<div class="map-top"><span id="map-scope">全部授权机构</span><span>真实边界 · 滚轮缩放 / 拖动平移</span></div><div id="map"></div><div class="map-bottom"><span><i></i> 基层机构</span><span><i class="hospital"></i> 医院</span></div>`,'<button class="text-button" id="reset-scope">查看全部</button>')}
-${panel('insights','慢阻肺共病','当前确诊在管',`<div class="subheading">慢阻肺共病升级</div><div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
+${panel('insights','慢阻肺共病统计','当前确诊在管',`<div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
 </div><aside class="right-column">
 ${panel('overview','筛查与人群概况','年度 / 当前状态','<div id="overview-list"></div>')}
 ${panel('gold','肺功能GOLD分级','当前确诊在管','<div id="gold-bars"></div><p id="gold-note" class="footnote"></p>')}
@@ -149,7 +149,7 @@ document.querySelector('#rank-tabs').onclick=e=>{if(!e.target.dataset.key)return
 function closeDetail(){detailSource=null;document.querySelector('#detail').close();document.querySelector('#detail-body').replaceChildren();}
 const showDetail=(title,body,source)=>{detailSource=source;document.querySelector('#detail-title').textContent=title;document.querySelector('#detail-body').innerHTML=body;document.querySelector('#detail').showModal();};
 document.querySelector('#all-institutions').onclick=()=>showDetail(`${yearEl.value}年度机构工作量明细`,table(data.annual,metadata),'annual');
-document.querySelector('#more-insights').onclick=()=>showDetail('慢阻肺共病升级（患者内去重）',bars(data.population?.comorbidities,data.population?.total),'population');
+document.querySelector('#more-insights').onclick=()=>showDetail('慢阻肺共病统计（患者内去重）',bars(data.population?.comorbidities,data.population?.total),'population');
 document.querySelector('#close-detail').onclick=closeDetail;
 document.querySelector('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{document.querySelector('#connection').textContent='浏览器未允许全屏，请使用F11';}};
 document.addEventListener('fullscreenchange',()=>document.querySelector('#fullscreen').textContent=document.fullscreenElement?'退出全屏':'全屏');
