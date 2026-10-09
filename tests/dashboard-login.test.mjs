@@ -9,7 +9,7 @@ function serve(calls,handler){return async(input,options={})=>{
 };}
 test('bookmark without login sends no statistics, explains login and resumes on same-origin login',async()=>{
  const dom=dashboardDom(),session=dom.install(),calls=[];session.storage.clear();
- globalThis.fetch=serve(calls,()=>Response.json({code:200,data:[]}));
+ globalThis.fetch=serve(calls,url=>Response.json({code:200,data:url.pathname.endsWith('/dashboard/alerts')?{records:[],total:0,current:1,size:3,pages:0}:[]}));
  try{
   await import(`../src/dashboard/app.mjs?login=${Date.now()}`);await drain();
   assert.equal(calls.filter(c=>c.url.pathname.includes('/manager-api/')).length,0);
@@ -28,7 +28,7 @@ test('concurrent 401s renew once, reload with new token and stop all polling whe
  globalThis.fetch=serve(calls,(url,options)=>{
   if(url.pathname.endsWith('/auth/refresh'))return Response.json(validRefresh?{code:200,data:{token:'renewed',refreshToken:'refresh-b'}}:{code:401});
   if(options.headers.Authorization==='Bearer user-a'||!validRefresh)return Response.json({code:401},{status:401});
-  return Response.json({code:200,data:url.pathname.endsWith('/population')?{total:7,genderDistribution:{男:7},comorbidities:{}}:[]});
+  return Response.json({code:200,data:url.pathname.endsWith('/population')?{total:7,genderDistribution:{男:7},comorbidities:{}}:url.pathname.endsWith('/dashboard/alerts')?{records:[],total:0,current:1,size:3,pages:0}:[]});
  });
  try{
   await import(`../src/dashboard/app.mjs?renew=${Date.now()}`);await drain();

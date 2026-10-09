@@ -5,6 +5,7 @@ import {dashboardUrl} from './paths.mjs';
 import {createRefreshController,annualKeys,ordinaryKeys,monitoringKeys,allKeys} from './refresh.mjs';
 import {createSectionRenderer} from './render.mjs';
 import {createAuthSession} from './auth.mjs';
+import {createAlertCarousel,renderAlertRecords} from './alert-carousel.mjs';
 const mountedUrl=path=>dashboardUrl(path,document.baseURI);
 
 const panel=(id,title,note,body,actions='')=>`<section class="panel" id="${id}"><header><h2>${title}</h2><small>${note}</small>${actions}</header><div class="panel-body">${body}</div><footer class="panel-state"></footer></section>`;
@@ -14,7 +15,7 @@ document.querySelector('#dashboard').innerHTML=`<header class="topbar"><div clas
 <main class="layout"><aside class="left-column">
 ${panel('population','患者性别与年龄分布','当前确诊在管','<div id="gender"></div><div id="age" class="age-bars"></div>')}
 ${panel('institutions','机构工作量排行','年度事件',`<nav class="tabs" id="rank-tabs"><button class="active" data-key="sqScreeningCount">COPD-SQ</button><button data-key="lungFuncExamCount">肺功能</button><button data-key="score16Count">≥16分</button></nav><div id="ranking"></div><p class="footnote">按事件人次排序 · 点击机构联动地图</p>`,'<button class="text-button" id="all-institutions">明细 ↗</button>')}
-${panel('monitoring','穿戴设备与预警动态','实时状态','<div id="wearable" class="mini-grid"></div><div class="subheading"><span>近60分钟新发活动预警</span><small>姓名脱敏</small></div><div id="alerts"></div>')}
+${panel('monitoring','穿戴设备与预警动态','实时状态','<div id="wearable" class="mini-grid"></div><div id="alert-carousel"><div class="subheading"><span>当前未处理告警</span></div><div id="alerts" role="list"></div><nav class="alert-controls" aria-label="当前告警轮播"><button id="alert-prev" aria-label="上一组告警">‹</button><span id="alert-page" aria-live="polite"></span><button id="alert-next" aria-label="下一组告警">›</button><button id="alert-pause" aria-pressed="false">暂停轮播</button></nav></div>')}
 </aside><div class="center-column"><div id="metrics" class="metrics"></div>
 ${panel('geography','武汉经济技术开发区（汉南区）','机构分布',`<div class="map-top"><span id="map-scope">全部授权机构</span><span>真实边界 · 滚轮缩放 / 拖动平移</span></div><div id="map"></div><div class="map-bottom"><span><i></i> 基层机构</span><span><i class="hospital"></i> 医院</span></div>`,'<button class="text-button" id="reset-scope">查看全部</button>')}
 ${panel('insights','慢阻肺共病统计','当前确诊在管',`<div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
@@ -28,9 +29,15 @@ ${panel('quality','档案质控情况','当前确诊在管','<div id="quality-ri
 const currentYear=new Date().getFullYear(),yearEl=document.querySelector('#year'),scopeEl=document.querySelector('#scope');
 for(let year=currentYear;year>=2024;year--)yearEl.add(new Option(`${year}年`,year));
 let metadata={},map,rankKey='sqScreeningCount',activeToken=null,detailSource=null;
+const carousel=createAlertCarousel();
 const auth=createAuthSession({storage:localStorage,refreshUrl:new URL('/cdmsmanagerapi/api/v1/auth/refresh',document.baseURI).href,onChange:applySession});
-const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/dashboard/population',highrisk:'/dashboard/high-risk',monitoring:'/monitoring/stats',alerts:'/monitoring/alerts/popup'};
+const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/dashboard/population',highrisk:'/dashboard/high-risk',monitoring:'/monitoring/stats',alerts:'/dashboard/alerts'};
 const refresh=createRefreshController({year:yearEl.value,token:activeToken,request:requestData,onChange:(key,event)=>{
+ if(key==='alerts'){
+  if(data.alerts&&!states.alerts?.loading)carousel.acceptPage(data.alerts);
+  else if(!data.alerts&&event.dataChanged)carousel.reset();
+  carousel.setFlags({authorized:!!activeToken,loading:!!states.alerts?.loading,hidden:document.hidden});renderAlertControls();
+ }
  if(event.dataChanged&&detailSource===key)closeDetail();
  if(key==='annual'&&event.dataChanged&&data.annual&&!scopeEl.value)updateScopes(data.annual);
  if(event.dataChanged)render([key]);renderStatus(key);
@@ -62,7 +69,7 @@ const sections={};
 const add=(id,depends,update)=>sections[id]={depends,render:update};
 document.querySelector('#metrics').innerHTML=Array.from({length:6},(_,i)=>`<div id="metric-${i}" class="metric-slot"></div>`).join('');
 const metricSources=[['annual'],['highrisk'],['population'],['followup'],['monitoring'],['monitoring','alerts']];
-const metricContent=[()=>metric('COPD-SQ筛查',sum(data.annual,'sqScreeningCount'),'人次',`${yearEl.value}年度问卷事件`),()=>metric('高危人群',data.highrisk?.total,'人',`当前 · 待确诊 ${fmt(data.highrisk?.pending)} 人`,'blue'),()=>metric('确诊在管人群',data.population?.total,'人','当前活跃管理','purple'),()=>metric('随访记录',sum(data.followup,'visitCount'),'人次',`${yearEl.value}年度随访事件`,'green'),()=>metric('在管监测人数',data.monitoring?.managedPatientCount,'人','当前监测范围','blue'),()=>metric('当前预警患者',data.monitoring?.activeAlertPatientCount,'人',`活动预警 ${fmt(data.alerts?.remainingCount)} 条`,'pink')];
+const metricContent=[()=>metric('COPD-SQ筛查',sum(data.annual,'sqScreeningCount'),'人次',`${yearEl.value}年度问卷事件`),()=>metric('高危人群',data.highrisk?.total,'人',`当前 · 待确诊 ${fmt(data.highrisk?.pending)} 人`,'blue'),()=>metric('确诊在管人群',data.population?.total,'人','当前活跃管理','purple'),()=>metric('随访记录',sum(data.followup,'visitCount'),'人次',`${yearEl.value}年度随访事件`,'green'),()=>metric('在管监测人数',data.monitoring?.managedPatientCount,'人','当前监测范围','blue'),()=>metric('当前预警患者',data.monitoring?.activeAlertPatientCount,'人',`活动预警 ${fmt(data.alerts?.total)} 条`,'pink')];
 metricContent.forEach((content,i)=>add(`metric-${i}`,metricSources[i],()=>document.querySelector(`#metric-${i}`).innerHTML=content()));
 add('population',['population'],()=>{
  const p=data.population;
@@ -83,13 +90,30 @@ add('wearable',['monitoring'],()=>{
  const m=data.monitoring;
  document.querySelector('#wearable').innerHTML=[['在管监测',m?.managedPatientCount],['已绑定设备',m?.boundPatientCount],['当前预警',m?.activeAlertPatientCount],['设备离线',m?.offlinePatientCount]].map(([label,value])=>`<div><span>${label}</span><b>${fmt(value)}<small>人</small></b></div>`).join('');
 });
-add('alerts',['alerts'],()=>document.querySelector('#alerts').innerHTML=data.alerts?.alerts?.length?data.alerts.alerts.slice(0,6).map(r=>`<div class="alert-row"><i class="${r.level===2?'critical':''}"></i><b>${esc(maskName(r.patientName))}</b><span>${esc(r.alertType==='SPO2'?'血氧':'心率')} ${fmt(r.alertValue)}${esc(r.alertUnit)}</span><time>${esc(String(r.occurredAt??'').replace('T',' ').slice(5,16))}</time></div>`).join(''):`<div class="empty">${data.alerts?'近60分钟暂无新发活动预警':'等待管理端监测数据'}</div>`);
+add('alerts',['alerts'],()=>document.querySelector('#alerts').innerHTML=data.alerts?renderAlertRecords(data.alerts.records):'<div class="empty">等待管理端告警数据</div>');
 document.querySelector('#overview-list').innerHTML=Array.from({length:7},(_,i)=>`<div id="overview-${i}" class="overview-row"></div>`).join('');
 const overviewRows=[['COPD-SQ问卷','annual',()=>sum(data.annual,'sqScreeningCount'),'人次','年度'],['≥16分问卷','annual',()=>sum(data.annual,'score16Count'),'人次','年度'],['开展肺功能检查','annual',()=>sum(data.annual,'lungFuncExamCount'),'人次','年度'],['高危人群','highrisk',()=>data.highrisk?.total,'人','当前'],['待确诊','highrisk',()=>data.highrisk?.pending,'人','当前'],['确诊在管','population',()=>data.population?.total,'人','当前'],['随访记录','followup',()=>sum(data.followup,'visitCount'),'人次','年度']];
 overviewRows.forEach(([label,key,value,unit,period],i)=>add(`overview-${i}`,[key],()=>document.querySelector(`#overview-${i}`).innerHTML=`<span><i></i>${label}<small>${period}</small></span><b>${fmt(value())}<small>${unit}</small></b>`));
 add('map',['annual','scope'],()=>{renderMapStatus();map?.update(data.annual??[],scopeEl.value);});
 const render=createSectionRenderer(sections);
-function maskName(name) {const n=String(name??'匿名');if(n.includes('*'))return n;return n.length>1?n[0]+'**':'*';}
+function renderAlertControls(){
+ const value=carousel.snapshot();
+ document.querySelector('#alert-page').textContent=value.pages?`${value.current}/${value.pages}页 · 共${fmt(value.total)}条${value.loading?' · 加载中':''}`:value.loading?'加载中':'0条';
+ document.querySelector('#alert-prev').disabled=!value.canTurn;document.querySelector('#alert-next').disabled=!value.canTurn;
+ const pause=document.querySelector('#alert-pause');pause.disabled=!activeToken||!value.total;pause.textContent=value.userPaused?'继续轮播':'暂停轮播';pause.setAttribute('aria-pressed',String(value.userPaused));
+}
+function changeAlertPage(page){
+ if(page==null||syncToken()||!activeToken)return;
+ refresh.setContext({alertPage:page});refresh.load('alerts');renderAlertControls();
+}
+const alertArea=document.querySelector('#alert-carousel');
+alertArea.addEventListener('pointerenter',()=>carousel.setFlags({hover:true}));
+alertArea.addEventListener('pointerleave',()=>carousel.setFlags({hover:false}));
+alertArea.addEventListener('focusin',()=>carousel.setFlags({focus:true}));
+alertArea.addEventListener('focusout',event=>{if(!alertArea.contains(event.relatedTarget))carousel.setFlags({focus:false});});
+document.querySelector('#alert-prev').onclick=()=>changeAlertPage(carousel.previous());
+document.querySelector('#alert-next').onclick=()=>changeAlertPage(carousel.next());
+document.querySelector('#alert-pause').onclick=()=>{carousel.togglePause();renderAlertControls();};
 function renderInsight() {
  const p=data.population,el=document.querySelector('#insight'),note=document.querySelector('#insight-note');
  const all=Object.entries(p?.comorbidities??{}).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -103,7 +127,7 @@ async function requestData(key,context,signal) {
  try {
  const params=new URLSearchParams();if(context.orgId)params.set('orgId',context.orgId);
  if(annualKeys.includes(key))params.set('year',context.year);
- if(key==='alerts')params.set('minutes','60');
+ if(key==='alerts'){params.set('page',String(context.alertPage));params.set('size','3');}
  const response=await fetch(mountedUrl(`manager-api/api/v1${endpoints[key]}?${params}`),{headers:context.token?{Authorization:`Bearer ${context.token}`}:{},signal});
  let result;
  try{
@@ -158,7 +182,7 @@ scopeEl.onchange=refreshScope;document.querySelector('#reset-scope').onclick=()=
 window.addEventListener('storage',event=>{if(event.key==='token'||event.key==='refreshToken'||event.key===null)syncToken();});
 document.querySelector('#auth-retry').onclick=()=>auth.retry();
 window.addEventListener('focus',()=>{syncToken();refresh.checkFreshness();});
-document.addEventListener('visibilitychange',()=>{refresh.checkFreshness();if(!document.hidden)poll(allKeys);});
+document.addEventListener('visibilitychange',()=>{carousel.setFlags({hidden:document.hidden});renderAlertControls();refresh.checkFreshness();if(!document.hidden)poll(allKeys);});
 document.querySelector('#rank-tabs').onclick=e=>{if(!e.target.dataset.key)return;rankKey=e.target.dataset.key;document.querySelectorAll('#rank-tabs button').forEach(b=>b.classList.toggle('active',b===e.target));render(['rank']);};
 function closeDetail(){detailSource=null;document.querySelector('#detail').close();document.querySelector('#detail-body').replaceChildren();}
 const showDetail=(title,body,source)=>{detailSource=source;document.querySelector('#detail-title').textContent=title;document.querySelector('#detail-body').innerHTML=body;document.querySelector('#detail').showModal();};
@@ -167,7 +191,7 @@ document.querySelector('#more-insights').onclick=()=>showDetail('慢阻肺共病
 document.querySelector('#close-detail').onclick=closeDetail;
 document.querySelector('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{document.querySelector('#connection').textContent='浏览器未允许全屏，请使用F11';}};
 document.addEventListener('fullscreenchange',()=>document.querySelector('#fullscreen').textContent=document.fullscreenElement?'退出全屏':'全屏');
-const clock=()=>{document.querySelector('#clock').textContent=new Date().toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});syncToken();refresh.checkFreshness();};clock();setInterval(clock,1000);
+const clock=()=>{document.querySelector('#clock').textContent=new Date().toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});syncToken();refresh.checkFreshness();carousel.setFlags({hidden:document.hidden});changeAlertPage(carousel.tick());};clock();setInterval(clock,1000);
 render(allKeys);renderStatus();poll(allKeys);
 setInterval(()=>poll(ordinaryKeys),60000);
 setInterval(()=>poll(monitoringKeys),20000);

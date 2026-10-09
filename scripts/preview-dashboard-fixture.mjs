@@ -12,12 +12,13 @@ const payloads={
  '/api/v1/dashboard/population':population,
  '/api/v1/dashboard/high-risk':{total:32,pending:8},
  '/api/v1/screening/stats':{trend:Array.from({length:12},(_,i)=>({month:`2026-${String(i+1).padStart(2,'0')}`,total:15+i*4,high:2+i}))},
- '/api/v1/monitoring/stats':{managedPatientCount:20,boundPatientCount:12,activeAlertPatientCount:2,offlinePatientCount:3},
- '/api/v1/monitoring/alerts/popup':{remainingCount:3,alerts:[{patientName:'测**',alertType:'SPO2',alertValue:88,alertUnit:'%',level:2,occurredAt:'2026-10-08T10:00:00'},{patientName:'样**',alertType:'HEART_RATE',alertValue:110,alertUnit:'bpm',level:1,occurredAt:'2026-10-08T09:50:00'}]}
+ '/api/v1/monitoring/stats':{managedPatientCount:20,boundPatientCount:12,activeAlertPatientCount:13,offlinePatientCount:3}
 };
-// Fixture timestamps are fixed to server start; polling this sample must not pretend to update data.
+const alertSamples=[['张勇','SPO2',88,'%','血氧88%，低于90%预警阈值'],['李芳','HEART_RATE',118,'bpm','静息心率118次/分，高于110次/分'],['王丽','STEPS_LOW',320,'步','当日步数320步，低于活动目标'],['陈伟','SLEEP_LOW',4,'小时','昨夜睡眠4小时，少于建议时长'],['刘敏','MULTIPLE_WARNING',null,'','血氧偏低并伴随心率持续偏高'],['赵强','SPO2',89,'%','血氧89%，连续三次低于预警阈值'],['孙慧','HEART_RATE',42,'bpm','静息心率42次/分，低于50次/分'],['周军','STEPS',280,'步','当前活动量较少，请确认佩戴情况'],['吴静','SLEEP',3.5,'小时','昨夜睡眠时长不足4小时'],['郑峰','DEVICE_OFFLINE',null,'','设备离线，最近三小时未收到监测数据'],['何平','SPO2',87,'%','血氧87%，建议及时评估'],['马兰','HEART_RATE',125,'bpm','心率持续高于120次/分'],['徐晓','SLEEP_LOW',4.5,'小时','连续两日睡眠不足5小时']];
+const alertRecords=alertSamples.map(([patientName,alertType,alertValue,alertUnit,reason],i)=>({orgId:Object.keys(metadata)[i],alertId:String(1972545764702666700n+BigInt(i)),patientId:String(1972545633966211000n+BigInt(i)),patientName,alertType,alertValue,alertUnit,reason,level:i%3===0?2:1,occurredAt:`2026-09-${String(i+1).padStart(2,'0')} 08:30:59`}));
+// Sample data time stays fixed; extend only this isolated preview's validity windows on reads.
 const capturedAt=new Date();
-const fixtureMeta={dataUpdatedAt:capturedAt.toISOString(),stale:false,refreshing:false,refreshFailed:false,freshUntil:new Date(+capturedAt+180000).toISOString(),staleUntil:new Date(+capturedAt+780000).toISOString()};
+const fixtureMeta=()=>{const readAt=Date.now();return {dataUpdatedAt:capturedAt.toISOString(),stale:false,refreshing:false,refreshFailed:false,freshUntil:new Date(readAt+180000).toISOString(),staleUntil:new Date(readAt+780000).toISOString()};};
 createServer(async(req,res)=>{
  try {
   const url=new URL(req.url,'http://localhost');
@@ -31,8 +32,13 @@ createServer(async(req,res)=>{
   if(url.pathname==='/api/dashboard-config'){res.setHeader('Content-Type','application/json');return res.end(JSON.stringify({managerUiUrl:'/cdmsmanager/'}));}
   if(url.pathname.startsWith('/manager-api/')){
    const path=url.pathname.replace('/manager-api','');let data=payloads[path];
+   if(path==='/api/v1/dashboard/alerts'){
+    const records=url.searchParams.has('orgId')?alertRecords.filter(row=>row.orgId===url.searchParams.get('orgId')):alertRecords;
+    const size=Math.max(1,Math.min(100,Number(url.searchParams.get('size'))||24)),total=records.length,pages=Math.ceil(total/size),current=total?Math.max(1,Math.min(pages,Number(url.searchParams.get('page'))||1)):1;
+    res.setHeader('Content-Type','application/json');return res.end(JSON.stringify({code:200,data:{records:records.slice((current-1)*size,current*size),total,current,size,pages}}));
+   }
    if(Array.isArray(data)&&url.searchParams.has('orgId'))data=data.filter(row=>row.orgId===url.searchParams.get('orgId'));
-   res.setHeader('Content-Type','application/json');return res.end(JSON.stringify({code:200,data,...(path.startsWith('/api/v1/dashboard/')?{meta:fixtureMeta}:{})}));
+   res.setHeader('Content-Type','application/json');return res.end(JSON.stringify({code:200,data,...(path.startsWith('/api/v1/dashboard/')?{meta:fixtureMeta()}:{})}));
   }
   const file=resolve(root,url.pathname==='/'?'index.html':url.pathname.slice(1));
   if(!file.startsWith(root))throw Error('path');

@@ -15,7 +15,7 @@ test('statistics start and render while map and navigation configuration are sti
   if(url.pathname.endsWith('/api/map-config')){await mapReady;return Response.json({[org]:{name:'机构',lng:.5,lat:.5}});}
   if(url.pathname.endsWith('/map/whkfq.json')){await mapReady;return Response.json({features:[{geometry}]});}
   if(url.pathname.endsWith('/map/streets.json')){await mapReady;return Response.json({features:[]});}
-  return Response.json({code:200,data:url.pathname.endsWith('/screening')?[{orgId:org,orgName:'机构',sqScreeningCount:12}]:url.pathname.endsWith('/follow-up')?[]:url.pathname.endsWith('/population')?{total:7,genderDistribution:{男:7},comorbidities:{}}:{}});
+  return Response.json({code:200,data:url.pathname.endsWith('/screening')?[{orgId:org,orgName:'机构',sqScreeningCount:12}]:url.pathname.endsWith('/follow-up')?[]:url.pathname.endsWith('/population')?{total:7,genderDistribution:{男:7},comorbidities:{}}:url.pathname.endsWith('/dashboard/alerts')?{records:[],total:0,current:1,size:3,pages:0}:{}});
  };
  const importing=import(`../src/dashboard/app.mjs?startup=${Date.now()}`);
  try{
@@ -50,7 +50,7 @@ test('real dashboard app limits yearly refresh, preserves map navigation and iso
    if(url.pathname.endsWith('/population'))data={total:7,qualityPassed:4,genderDistribution:{男:7},ageBuckets:{'60+':7},goldDistribution:{'GOLD 1-2级':4},goldGradedTotal:4,goldUngraded:3,riskDistribution:{低风险:7},abeDistribution:{A:7},comorbidities:{高血压:3}};
    if(url.pathname.endsWith('/high-risk'))data={total:9,pending:2};
    if(url.pathname.endsWith('/monitoring/stats'))data={managedPatientCount:monitorCount,boundPatientCount:4,activeAlertPatientCount:1,offlinePatientCount:2};
-   if(url.pathname.endsWith('/popup'))data={remainingCount:1,alerts:[]};
+   if(url.pathname.endsWith('/dashboard/alerts'))data={records:[],total:0,current:1,size:3,pages:0};
    payload={code:200,data,...(url.pathname.includes('/dashboard/')?{meta:{...meta,refreshing:backgroundRefreshing&&url.pathname.endsWith('/screening'),...(expiresSoon&&url.pathname.endsWith('/screening')?{staleUntil:new Date(realNow()+30000).toISOString()}:{})}}:{})};
    if(url.pathname.endsWith('/population')&&populationStatus!==200)return Response.json({code:populationStatus,message:'denied'},{status:populationStatus});
   }

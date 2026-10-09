@@ -89,6 +89,16 @@ test('manager failures never become successful zero data', async () => {
  const proxy=createManagerProxy({baseUrl:'http://127.0.0.1:8081',fetchImpl:async()=>{throw Error('offline');}});
  assert.equal((await proxy('/api/v1/copd/stats',{authorization:'Bearer user-token'})).status,503);
 });
+test('current alert pagination is read-only, bounded and accepted only on its dedicated endpoint',async()=>{
+ const {createManagerProxy}=await import('../server/manager-proxy.mjs');const calls=[];
+ const proxy=createManagerProxy({baseUrl:'http://127.0.0.1:8081',fetchImpl:async(url)=>{calls.push(url);return Response.json({code:200,data:{records:[],total:0,current:1,size:3,pages:0}});}});
+ const auth={authorization:'Bearer user-token'};
+ assert.equal((await proxy('/api/v1/dashboard/alerts?orgId=1972545764702666753&page=2&size=3',auth)).status,200);
+ assert.equal(calls[0],'http://127.0.0.1:8081/api/v1/dashboard/alerts?orgId=1972545764702666753&page=2&size=3');
+ for(const query of ['page=0','page=-1','page=1000001','page=1.5','size=0','size=101','page=1&page=2','minutes=60','year=2026','keyword=patient'])assert.equal((await proxy(`/api/v1/dashboard/alerts?${query}`,auth)).status,400,query);
+ for(const path of ['/api/v1/copd/stats?page=1','/api/v1/monitoring/stats?size=3','/api/v1/dashboard/alerts/123'])assert.ok([400,404].includes((await proxy(path,auth)).status));
+ assert.equal((await proxy('/api/v1/dashboard/alerts?page=1&size=3')).status,401);
+});
 test('manager proxy forwards cached dashboard metadata and read-only population paths',async()=>{
  const {createManagerProxy}=await import('../server/manager-proxy.mjs');
  const meta={dataUpdatedAt:'2026-10-09T00:00:00Z',stale:true,refreshing:true,refreshFailed:false,freshUntil:'2026-10-09T00:00:45Z',staleUntil:'2026-10-09T00:02:45Z'};

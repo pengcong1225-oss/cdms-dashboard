@@ -30,7 +30,7 @@ Manager需要包含此次新增的DashboardStatsController/DashboardStatsService
 | 档案质控 | 同上 qualityPassed | patient.qc_status=1；非肺功能报告质控 |
 | COPD-SQ问卷风险 | 同上 riskDistribution | 最新问卷总分≥16为高风险；缺问卷单列未评估，非急性加重风险 |
 | 当前预警患者 | /api/v1/monitoring/stats | activeAlertPatientCount，人数 |
-| 活动预警条数 / 动态 | /api/v1/monitoring/alerts/popup | remainingCount条数，动态为近60分钟新发活动告警 |
+| 当前未处理告警条数 / 轮播 | /api/v1/dashboard/alerts?page=1&size=3 | 全部active=1、在管范围内未处理告警，含全部类型，不限发生时间；total为条数 |
 | 慢阻肺共病统计 | /api/v1/dashboard/population 的 comorbidities | 展示共病分布；不再提供月度趋势、管理分级页签 |
 
 年度接口分别沿用sys:report:screening:list和sys:report:followup:list，其他模块沿用各自权限。范围在Manager按OrgRule子树校验；地图只按字符串机构ID匹配地图配置，不以名字/JavaScript数值ID合并数据。
@@ -40,6 +40,13 @@ Manager需要包含此次新增的DashboardStatsController/DashboardStatsService
 
 接口成功或失败只更新依赖该模块的区块和状态；监测、预警、排行页签均不重建地图。相同缓存数据只更新状态，不重绘图表；地图点位仅在年度数据或机构范围改变时更新。年度更新保留现有地图缩放、平移以及街道事件处理器。
 机构明细与街道看板跟随年度数据，共病“更多”跟随人口数据；其来源内容更新、401/403清除或超过最大陈旧时间时关闭并清空弹窗，避免继续展示过期快照。
+
+### 当前告警轮播
+告警接口沿用`sys:monitoring:list`及Manager机构范围校验，返回`Result.data={records,total,current,size,pages}`。记录含字符串`alertId/patientId`、原始`patientName`、`alertType/alertValue/alertUnit/reason/level`以及北京时间`occurredAt`（`yyyy-MM-dd HH:mm:ss`）。显示原姓名并转义HTML，优先显示具体reason；缺少reason时按血氧、心率、步数、睡眠、综合预警或未知类型组合数值和单位，发生时间保留完整title。没有当前告警显示“当前暂无未处理告警”。
+
+每组3条，6秒自动切换下一组并循环；上一组/下一组和暂停/继续提供手控。鼠标悬停、键盘聚焦、隐藏页面、加载期间及无会话暂停自动切换，恢复后等待新的6秒间隔。20秒常规轮询仅刷新当前页，在途请求复用；切页只取消alerts旧请求、保留旧组到新结果返回，其他图表与地图保持原状态。过期页响应不能覆盖新页，后台页数减少时采用返回的current；空结果current=1/pages=0。机构或token变化重置第1页、清除旧姓名和暂停/加载状态；年份不影响告警页。401/403清除敏感告警内容，无token不发告警请求。
+
+Node代理仅对此接口允许`orgId/page/size`；page为1–1000000、size为1–100，拒绝时间参数、未知参数及重复参数。前端始终size=3，不改变任何写接口授权。
 
 ### 缓存时间与刷新状态
 年度两接口及人口/高危接口保持`Result.data`原来的数组或统计对象形状，增加可选`Result.meta`：
@@ -60,7 +67,7 @@ npm test
 npm run build
 node scripts/preview-dashboard-fixture.mjs
 ```
-最后一个命令只启动4319隔离测试页，明确标注“验收样例 · 非业务数据”，不会被生产服务导入，也不写数据库。样例使用新人口/高危路径，meta时间固定为样例服务启动时间，轮询不冒充数据更新。用于检查完整布局、17机构引线、所有分布、机构与地图联动、明细、排行页签和街道看板；不作为业务数据交付。正式入口4318不加载该样例。
+最后一个命令只启动4319隔离测试页，明确标注“验收样例 · 非业务数据”，不会被生产服务导入，也不写数据库。样例使用新人口/高危路径，样例dataUpdatedAt固定为服务启动时间；freshUntil/staleUntil随读取延长以便持续视觉验收，生产缓存有效期规则不变。告警样例有13条模拟姓名和具体告警原因，覆盖全部类型及超过60分钟的旧发生时间，提供真正分页与机构过滤；假会话仅由该样例服务器覆盖auth模块，生产dist仍使用真实登录实现。用于检查完整布局、17机构引线、所有分布、机构与地图联动、明细、排行页签、街道看板和告警轮播；不作为业务数据交付。正式入口4318不加载该样例。
 
 新增刷新测试覆盖年度与当前接口独立、请求去重、旧响应抛弃、token隔离、403清除、缓存真实时间和过期清理。真实app配合小型DOM边界替身执行，验证年度仅两请求、监测不触碰人口/排行/地图DOM、缓存命中不重绘、地图滚轮与拖动状态在刷新后保留。该测试不替代真实浏览器与生产数据联调。
 

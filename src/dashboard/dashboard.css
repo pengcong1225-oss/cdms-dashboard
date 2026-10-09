@@ -940,6 +940,17 @@ td:nth-child(n+3),th:nth-child(n+3) {
   margin-top:4px}
 }
 .metric-slot{display:contents}
+#monitoring .panel-body{display:flex;flex-direction:column}
+#alert-carousel{display:flex;flex-direction:column;flex:1;min-height:0}
+#alert-carousel .subheading{margin:4px 0 2px;flex-shrink:0}
+#alert-carousel #alerts{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));flex:1;min-height:0}
+#alert-carousel #alerts>.empty{grid-row:1/-1;align-self:center}
+#alert-carousel .alert-row{grid-template-columns:6px minmax(40px,55px) minmax(0,1fr) 65px;min-height:0;padding:0;line-height:14px;align-content:center}
+#alert-carousel .alert-row b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alert-controls{display:flex;align-items:center;justify-content:space-between;gap:5px;flex-shrink:0;padding-top:5px;font-size:9px;color:#89b4d4}
+.alert-controls button{padding:2px 6px;font-size:inherit}
+.alert-controls button:disabled{opacity:.4;cursor:default}
+.alert-controls span{flex:1;text-align:center;white-space:nowrap}
 /* 暂时屏蔽模块及顶部统计状态文案，保留原有布局占位。 */
 .panel-state,.connection{visibility:hidden}
 .auth-gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(5,14,31,.8)}

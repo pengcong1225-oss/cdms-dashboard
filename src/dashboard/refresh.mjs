@@ -5,19 +5,23 @@ export const allKeys=[...ordinaryKeys,...monitoringKeys];
 const timestamp=value=>value&&Number.isFinite(Date.parse(value))?String(value):null;
 
 // Each module owns its epoch: changing the year must not invalidate current-state requests.
-export function createRefreshController({request,onChange=()=>{},now=Date.now,year,orgId='',token=null}) {
+export function createRefreshController({request,onChange=()=>{},now=Date.now,year,orgId='',token=null,alertPage=1}) {
  const data={},states={},pending=new Map(),epochs=new Map(),followUpAttempts=new Map();
- let context={year:String(year),orgId:String(orgId),token};
+ const page=value=>Number.isInteger(Number(value))&&Number(value)>=1&&Number(value)<=1000000?Number(value):1;
+ let context={year:String(year),orgId:String(orgId),token,alertPage:page(alertPage)};
  const notify=(key,dataChanged=false)=>onChange(key,{dataChanged});
- function clear(key) {
+ function clear(key,retain=false) {
   epochs.set(key,(epochs.get(key)??0)+1);pending.get(key)?.controller.abort();pending.delete(key);
   followUpAttempts.delete(key);
-  delete data[key];delete states[key];notify(key,true);
+  if(!retain){delete data[key];delete states[key];}notify(key,!retain);
  }
  function setContext(next) {
   const updated={...context,...next};updated.year=String(updated.year);updated.orgId=String(updated.orgId??'');
-  const keys=updated.token!==context.token||updated.orgId!==context.orgId?allKeys:updated.year!==context.year?annualKeys:[];
-  context=updated;for(const key of keys)clear(key);return [...keys];
+  const scopeChanged=updated.token!==context.token||updated.orgId!==context.orgId;
+  updated.alertPage=scopeChanged?1:page(updated.alertPage);
+  const pageChanged=updated.alertPage!==context.alertPage;
+  const keys=scopeChanged?allKeys:[...(updated.year!==context.year?annualKeys:[]),...(pageChanged?['alerts']:[])];
+  context=updated;for(const key of keys)clear(key,!scopeChanged&&key==='alerts');return [...keys];
  }
  function checkFreshness() {
   for(const [key,state] of Object.entries(states)) {
@@ -41,6 +45,7 @@ export function createRefreshController({request,onChange=()=>{},now=Date.now,ye
    if(!valid())return;
    const changed=JSON.stringify(data[key])!==JSON.stringify(result.data);
    data[key]=result.data;
+   if(key==='alerts'&&result.data?.current!=null)context.alertPage=page(result.data.current);
    const meta=result.meta??{};
    states[key]={error:null,loading:false,dataUpdatedAt:timestamp(meta.dataUpdatedAt),receivedAt:new Date(now()).toISOString(),freshUntil:timestamp(meta.freshUntil),staleUntil:timestamp(meta.staleUntil),stale:meta.stale===true,refreshing:meta.refreshing===true,refreshFailed:meta.refreshFailed===true};
    if(states[key].freshUntil&&now()>=Date.parse(states[key].freshUntil))states[key].stale=true;

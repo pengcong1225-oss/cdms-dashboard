@@ -7,6 +7,38 @@ async function make(options={}) {
  return createRefreshController({year:'2026',orgId:'',token:'user-a',request:async()=>({data:{total:7}}),...options});
 }
 const deferred=()=>{let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});return {promise,resolve,reject};};
+test('alert page changes keep the old page, cancel only alerts and ignore late page responses',async()=>{
+ const calls=[],waiting=[];
+ const controller=await make({request:(key,context,signal)=>{const work=deferred();calls.push({key,context,signal});waiting.push(work);return work.promise;}});
+ const first=controller.load('alerts');waiting[0].resolve({data:{records:[{patientName:'第一页'}],current:1,pages:3,total:13,size:6}});await first;
+ const oldState=controller.states.alerts;
+ const population=controller.load('population'),old=controller.load('alerts');
+ assert.deepEqual(controller.setContext({alertPage:2}),['alerts']);
+ assert.equal(controller.data.alerts.records[0].patientName,'第一页');assert.equal(controller.states.alerts,oldState);
+ assert.equal(calls[1].signal.aborted,false);assert.equal(calls[2].signal.aborted,true);
+ const second=controller.load('alerts');assert.equal(calls[3].context.alertPage,2);
+ waiting[3].resolve({data:{records:[{patientName:'第二页'}],current:2,pages:3,total:13,size:6}});await second;
+ waiting[2].resolve({data:{records:[{patientName:'旧页'}],current:1,pages:3,total:13,size:6}});await old;
+ waiting[1].resolve({data:{total:7}});await population;
+ assert.equal(controller.data.alerts.records[0].patientName,'第二页');assert.equal(controller.data.population.total,7);
+});
+test('scope and token reset alert page to one, year keeps alert page, and denial clears retained sensitive pages',async()=>{
+ for(const status of [401,403]){
+  const calls=[];let denied=false;
+  const controller=await make({request:async(key,context)=>{calls.push({key,context});if(denied)throw Object.assign(Error('denied'),{status});return {data:{records:[{patientName:'敏感姓名'}],current:context.alertPage,pages:3,total:13,size:6}};}});
+  controller.setContext({alertPage:3});await controller.load('alerts');controller.setContext({year:'2025'});await controller.load('alerts');assert.equal(calls.at(-1).context.alertPage,3);
+  for(const context of [{orgId:'1972545764702666753'},{token:'user-b'}]){controller.setContext(context);await controller.load('alerts');assert.equal(calls.at(-1).context.alertPage,1);controller.setContext({alertPage:2});}
+  denied=true;await controller.load('alerts');assert.equal(controller.data.alerts,undefined);assert.equal(controller.states.alerts.error,'denied');
+ }
+});
+test('late denied alert pages cannot clear a newer page and server-clamped page becomes the next poll context',async()=>{
+ const calls=[],waiting=[];
+ const controller=await make({request:(key,context)=>{const work=deferred();calls.push(context);waiting.push(work);return work.promise;}});
+ const old=controller.load('alerts');controller.setContext({alertPage:3});const fresh=controller.load('alerts');
+ waiting[1].resolve({data:{records:[{patientName:'当前姓名'}],current:2,pages:2,total:7,size:6}});await fresh;
+ waiting[0].reject(Object.assign(Error('old denial'),{status:403}));await old;assert.equal(controller.data.alerts.records[0].patientName,'当前姓名');assert.equal(controller.states.alerts.error,null);
+ const poll=controller.load('alerts');assert.equal(calls[2].alertPage,2);waiting[2].resolve({data:controller.data.alerts});await poll;
+});
 test('year changes only cancel and reload annual data while current population requests survive',async()=>{
  const calls=[],waiting=[];
  const controller=await make({request:(key,context,signal)=>{const work=deferred();calls.push({key,context,signal});waiting.push(work);return work.promise;}});

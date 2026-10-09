@@ -1,11 +1,14 @@
-const allowed=new Set(['/api/v1/dashboard/screening','/api/v1/dashboard/follow-up','/api/v1/dashboard/population','/api/v1/dashboard/high-risk','/api/v1/copd/stats','/api/v1/screening/stats','/api/v1/highrisk/stats','/api/v1/monitoring/stats','/api/v1/monitoring/alerts/popup']);
+const allowed=new Set(['/api/v1/dashboard/screening','/api/v1/dashboard/follow-up','/api/v1/dashboard/population','/api/v1/dashboard/high-risk','/api/v1/dashboard/alerts','/api/v1/copd/stats','/api/v1/screening/stats','/api/v1/highrisk/stats','/api/v1/monitoring/stats','/api/v1/monitoring/alerts/popup']);
 export function createManagerProxy({baseUrl=process.env.MANAGER_BASE_URL,fetchImpl=fetch}={}) {
  return async (path,headers={})=>{
   const url=new URL(path,'http://local');
   const error=(status,msg)=>({status,body:{code:status,msg}});
   if(!allowed.has(url.pathname))return error(404,'接口不存在');
+  const alerts=url.pathname==='/api/v1/dashboard/alerts',seen=new Set();
   for(const [key,value] of url.searchParams){
-   if(!['orgId','year','minutes'].includes(key)||!/^\d{1,19}$/.test(value))return error(400,'筛选参数无效');
+   if(seen.has(key))return error(400,'筛选参数无效');seen.add(key);
+   if(!(alerts?['orgId','page','size']:['orgId','year','minutes']).includes(key)||!/^\d{1,19}$/.test(value))return error(400,'筛选参数无效');
+   if(key==='page'&&(Number(value)<1||Number(value)>1000000)||key==='size'&&(Number(value)<1||Number(value)>100))return error(400,'筛选参数无效');
   }
   if(!headers.authorization?.startsWith('Bearer '))return error(401,'请先登录管理端');
   if(!baseUrl)return error(503,'尚未配置管理端接口地址');

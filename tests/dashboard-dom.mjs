@@ -13,7 +13,7 @@ export function dashboardDom() {
    replaceChildren(...children){this.options=[...children];value=children[0]?.value??'';this.innerHTML='';},
    querySelector:sub=>node(`${selector} ${sub}`),querySelectorAll:sub=>sub==='[data-zoom]'?[]:[],
    addEventListener(event,handler){this.handlers[event]=handler;},setAttribute(name,next){this.attributes[name]=next;},
-   append(){},insertBefore(){},close(){this.open=false;},showModal(){this.open=true;},setPointerCapture(){},
+   append(){},insertBefore(){},contains(){return false;},close(){this.open=false;},showModal(){this.open=true;},setPointerCapture(){},
    getBoundingClientRect(){return {width:1000};}};
   nodes.set(selector,item);return item;
  };
