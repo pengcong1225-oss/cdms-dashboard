@@ -3,13 +3,15 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>大屏数据状态</title>
 <style>body{margin:0;background:#06162e;color:#d4e9ff;font:16px/1.8 system-ui}main{max-width:800px;margin:8vh auto;padding:32px}h1{color:#61d8ff}a{color:#61d8ff}dt{color:#8daccc}dd{margin:0 0 20px}code{color:#78e2c4}.warn{color:#ffbd75}</style>
-<main><a href="/">← 返回监管大屏</a><h1>大屏数据状态</h1><p id="description">正在读取数据来源状态。</p><dl id="status"></dl><h2>数据完整性</h2><p>未评估、缺日期、缺机构和缺地图坐标会按未知或缺口处理，不会伪造为零。实时库模式下，已确认的机构点位从服务端地图元数据按机构名称绑定，未匹配机构保留统计但不猜测位置。</p><p>当前本地服务仅允许本机访问。数据库账号密码只从服务端环境读取，不会发送到浏览器。</p><p><a href="https://agpay.lulife.net/smart-hguard/a/index#/smart-hguard/a/customer/customerHealthyProfile/archiveList" target="_blank" rel="noopener noreferrer">打开原站业务工作台 ↗</a></p></main>
+<main><a href="./">← 返回监管大屏</a><h1>大屏数据状态</h1><p id="description">正在读取数据来源状态。</p><dl id="status"></dl><h2>数据完整性</h2><p>未评估、缺日期、缺机构和缺地图坐标会按未知或缺口处理，不会伪造为零。实时库模式下，已确认的机构点位从服务端地图元数据按机构名称绑定，未匹配机构保留统计但不猜测位置。</p><p>当前本地服务仅允许本机访问。数据库账号密码只从服务端环境读取，不会发送到浏览器。</p><p><a href="https://agpay.lulife.net/smart-hguard/a/index#/smart-hguard/a/customer/customerHealthyProfile/archiveList" target="_blank" rel="noopener noreferrer">打开原站业务工作台 ↗</a></p></main>
 <script>
-fetch('/api/health').then(r=>r.json()).then(d=>{
+fetch(new URL('api/health',document.baseURI)).then(r=>r.json()).then(d=>{
  const box=document.getElementById('status');
- const live=d.mode==='db';
- document.getElementById('description').textContent=live?'当前展示来自 cdms_followup 的只读统计查询；数据库不可用时页面会明确报错。':'当前展示来自授权原站账号的聚合统计快照；未采集的年份会提示失败。';
- for(const [label,value] of [['服务状态',d.status],['数据模式',live?'新库实时统计':'原站快照'],['最近成功查询',d.lastSuccessAt?new Date(d.lastSuccessAt).toLocaleString('zh-CN'):'尚未查询'],['快照采集时间',d.capturedAt?new Date(d.capturedAt).toLocaleString('zh-CN'):'不适用'],['机构数量',d.institutions??'由数据库返回'],['聚合响应数量',d.responses??'由数据库实时计算'],['目标数据库已连接',d.databaseConnected?'是':'否']]){
+ const live=d.mode==='db',manager=d.mode==='manager';
+ document.getElementById('description').textContent=manager?'当前大屏通过用户登录权限获取CDMS管理端统计，不加载历史快照。接口权限及可用状态以大屏各模块提示为准。':live?'当前展示来自 cdms_followup 的只读统计查询；数据库不可用时页面会明确报错。':'当前展示来自授权原站账号的聚合统计快照；未采集的年份会提示失败。';
+ const rows=[['服务状态',d.status],['数据模式',manager?'CDMS管理端统计':live?'新库实时统计':'原站快照']];
+ rows.push(...(manager?[['管理端接口地址已配置',d.managerConfigured?'是':'否'],['数据刷新与最近成功时间','在大屏各模块显示'],['历史快照与旧版业务入口','已关闭']]:[['最近成功查询',d.lastSuccessAt?new Date(d.lastSuccessAt).toLocaleString('zh-CN'):'尚未查询'],['快照采集时间',d.capturedAt?new Date(d.capturedAt).toLocaleString('zh-CN'):'不适用'],['机构数量',d.institutions??'由数据库返回'],['聚合响应数量',d.responses??'由数据库实时计算'],['目标数据库已连接',d.databaseConnected?'是':'否']]));
+ for(const [label,value] of rows){
   const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;box.append(dt,dd);
  }
  if(live&&!d.databaseConnected){const p=document.createElement('p');p.className='warn';p.textContent='数据库当前不可用，接口不会静默返回旧快照。';document.querySelector('main').append(p);}

@@ -1,0 +1,80 @@
+[
+  {
+    "path": "index.html",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/",
+    "bytes": 4033,
+    "sha256": "1aec9199e45923a9dd3a971a74dd5c2de05dd0e69a8525fe375a99cab28716a9"
+  },
+  {
+    "path": "responsive.js",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/responsive.js",
+    "bytes": 896,
+    "sha256": "b06f3458eecb2d0e5745e7b77bf7221ec2491b1147b7f13650d853448a01d46c"
+  },
+  {
+    "path": "favicon.ico",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/favicon.ico",
+    "bytes": 4286,
+    "sha256": "b0a7559768e7c646154d0c91fbb8219a0b2a02842ccca6637ccd0f34d597fde7"
+  },
+  {
+    "path": "static/css/app.0d52b2dc.css",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/css/app.0d52b2dc.css",
+    "bytes": 1075,
+    "sha256": "40fe5fb370b5e4926786d5f02b63fe611cb500f3b09efd4385516f1d317e1dae"
+  },
+  {
+    "path": "static/css/chunk-0adb2638.4e09da26.css",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/css/chunk-0adb2638.4e09da26.css",
+    "bytes": 32801,
+    "sha256": "de2e585e371c86efb35e75a227ef31e6f754e2b10093fd8aa19ccc500f848747"
+  },
+  {
+    "path": "static/js/chunk-libs.a36fe31f.js",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/js/chunk-libs.a36fe31f.js",
+    "bytes": 1464584,
+    "sha256": "c04f1477ce840f83bb77192ec1c837d3781ffcf585d15eb1ad88b33dd8e7e219"
+  },
+  {
+    "path": "static/js/app.d091c683.js",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/js/app.d091c683.js",
+    "bytes": 3687,
+    "sha256": "0ba37f54e4fb0ebf394f958010a1c9338e218e22c6855fa46eefb6f22de2e12c"
+  },
+  {
+    "path": "static/js/chunk-772c38b6.150c1ddb.js",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/js/chunk-772c38b6.150c1ddb.js",
+    "bytes": 33657,
+    "sha256": "1d1230393fb3effa04cb5ff5e167cc6badf6f30534edd07afbb6c1bfad230b96"
+  },
+  {
+    "path": "static/js/chunk-0adb2638.cceccd02.js",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/js/chunk-0adb2638.cceccd02.js",
+    "bytes": 154763,
+    "sha256": "8bbfce7a1c8c2adcfe1b3898c7089c50124b08cba93e66f99f3b9d5484949a11"
+  },
+  {
+    "path": "map/whkfq.json",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/map/whkfq.json",
+    "bytes": 88990,
+    "sha256": "62577a893040f6429defe8ddc64d294fa951604883be5b872340aaad55185a6b"
+  },
+  {
+    "path": "static/fonts/youshebiaohei.1726685c.ttf",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/fonts/youshebiaohei.1726685c.ttf",
+    "bytes": 1414784,
+    "sha256": "dab883d69fb713233ea5d9aff8d1f27ccc2b71e249143edf6ea08367784c5dba"
+  },
+  {
+    "path": "static/fonts/%E5%BA%9E%E9%97%A8%E6%AD%A3%E9%81%93%E6%A0%87%E9%A2%98%E4%BD%933.0.67dedd33.ttf",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/fonts/%E5%BA%9E%E9%97%A8%E6%AD%A3%E9%81%93%E6%A0%87%E9%A2%98%E4%BD%933.0.67dedd33.ttf",
+    "bytes": 1176100,
+    "sha256": "366f576f1bf1d74b216977e6c8b43d60977134e4be6029e30034a91e1b51bf4a"
+  },
+  {
+    "path": "static/img/home_bg.e95d7ca4.png",
+    "source": "https://agpay.lulife.net/smart-hguard-monitor/static/img/home_bg.e95d7ca4.png",
+    "bytes": 1198383,
+    "sha256": "c77ebf19ca520348416c831053ab24661f672cd6751dd30a72c2d808edffa361"
+  }
+]
