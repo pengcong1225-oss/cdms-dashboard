@@ -940,3 +940,5 @@ td:nth-child(n+3),th:nth-child(n+3) {
   margin-top:4px}
 }
 .metric-slot{display:contents}
+/* 暂时屏蔽模块及顶部统计状态文案，保留原有布局占位。 */
+.panel-state,.connection{visibility:hidden}
