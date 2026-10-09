@@ -3,9 +3,36 @@ import assert from 'node:assert/strict';
 import {dashboardDom} from './dashboard-dom.mjs';
 
 const drain=async()=>{for(let i=0;i<8;i++)await new Promise(resolve=>setImmediate(resolve));};
+test('statistics start and render while map and navigation configuration are still loading',async()=>{
+ const dom=dashboardDom(),session=dom.install(),calls=[];
+ let releaseConfig,releaseMap;
+ const configReady=new Promise(resolve=>releaseConfig=resolve),mapReady=new Promise(resolve=>releaseMap=resolve);
+ const org='1972545764702666753';
+ const geometry={type:'Polygon',coordinates:[[[0,0],[1,0],[1,1],[0,1],[0,0]]]};
+ globalThis.fetch=async input=>{
+  const url=new URL(input);calls.push(url.pathname);
+  if(url.pathname.endsWith('/api/dashboard-config')){await configReady;return Response.json({managerUiUrl:'/cdmsmanager/'});}
+  if(url.pathname.endsWith('/api/map-config')){await mapReady;return Response.json({[org]:{name:'机构',lng:.5,lat:.5}});}
+  if(url.pathname.endsWith('/map/whkfq.json')){await mapReady;return Response.json({features:[{geometry}]});}
+  if(url.pathname.endsWith('/map/streets.json')){await mapReady;return Response.json({features:[]});}
+  return Response.json({code:200,data:url.pathname.endsWith('/screening')?[{orgId:org,orgName:'机构',sqScreeningCount:12}]:url.pathname.endsWith('/follow-up')?[]:url.pathname.endsWith('/population')?{total:7,genderDistribution:{男:7},comorbidities:{}}:{}});
+ };
+ const importing=import(`../src/dashboard/app.mjs?startup=${Date.now()}`);
+ try{
+  await drain();
+  assert.equal(calls.filter(path=>path.includes('/manager-api/')).length,6,'six data requests must start before optional resources resolve');
+  assert.match(dom.node('#metric-0').innerHTML,/12/);
+  assert.match(dom.node('#gender').innerHTML,/7/);
+  releaseConfig();await drain();
+  dom.node('#scope').value=org;dom.node('#scope').onchange();await drain();
+  releaseMap();await importing;await drain();
+  assert.match(dom.node('#map #map-points').innerHTML,new RegExp(org),'late map must render the latest selected scope');
+  assert.equal(dom.node('#scope').value,org);
+ }finally{releaseConfig();releaseMap();await importing;await drain();session.restore();}
+});
 test('real dashboard app limits yearly refresh, preserves map navigation and isolates monitoring DOM writes',async()=>{
  const dom=dashboardDom(),session=dom.install(),calls=[];
- const org='1972545764702666753';let screening=12,monitorCount=7,populationStatus=200,expiresSoon=false,timeOffset=0;
+ const org='1972545764702666753';let screening=12,monitorCount=7,populationStatus=200,expiresSoon=false,timeOffset=0,backgroundRefreshing=false;
  const realNow=Date.now;Date.now=()=>realNow()+timeOffset;
  const geometry={type:'Polygon',coordinates:[[[0,0],[1,0],[1,1],[0,1],[0,0]]]};
  const meta={dataUpdatedAt:'2026-10-09T00:00:00Z',stale:false,refreshing:false,refreshFailed:false,freshUntil:'2099-01-01T00:00:00Z',staleUntil:'2099-01-01T00:10:00Z'};
@@ -24,7 +51,7 @@ test('real dashboard app limits yearly refresh, preserves map navigation and iso
    if(url.pathname.endsWith('/high-risk'))data={total:9,pending:2};
    if(url.pathname.endsWith('/monitoring/stats'))data={managedPatientCount:monitorCount,boundPatientCount:4,activeAlertPatientCount:1,offlinePatientCount:2};
    if(url.pathname.endsWith('/popup'))data={remainingCount:1,alerts:[]};
-   payload={code:200,data,...(url.pathname.includes('/dashboard/')?{meta:{...meta,...(expiresSoon&&url.pathname.endsWith('/screening')?{staleUntil:new Date(realNow()+30000).toISOString()}:{})}}:{})};
+   payload={code:200,data,...(url.pathname.includes('/dashboard/')?{meta:{...meta,refreshing:backgroundRefreshing&&url.pathname.endsWith('/screening'),...(expiresSoon&&url.pathname.endsWith('/screening')?{staleUntil:new Date(realNow()+30000).toISOString()}:{})}}:{})};
    if(url.pathname.endsWith('/population')&&populationStatus!==200)return Response.json({code:populationStatus,message:'denied'},{status:populationStatus});
   }
   return new Response(JSON.stringify(payload),{status:200,headers:{'Content-Type':'application/json'}});
@@ -37,6 +64,9 @@ test('real dashboard app limits yearly refresh, preserves map navigation and iso
   svg.handlers.pointerdown({target:{closest:()=>null},clientX:0,clientY:0});
   svg.handlers.pointermove({buttons:1,clientX:30,clientY:20,pointerId:1});svg.handlers.pointerup();
   const transform=scene.attributes.transform;assert.match(transform,/translate\(30 20\).*scale\(1.1\)/);
+  backgroundRefreshing=true;dom.timers.find(timer=>timer.ms===60000).handler();await drain();
+  backgroundRefreshing=false;screening=13;calls.length=0;dom.timers.find(timer=>timer.ms===3000).handler();await drain();
+  assert.equal(calls.length,1);assert.match(calls[0].path,/screening$/);assert.match(node('#metric-0').innerHTML,/13/);assert.equal(scene.attributes.transform,transform);
   const beforePopulation=node('#gender').writes,beforeMap=points.writes,beforeRanking=node('#ranking').writes;
   calls.length=0;node('#year').value='2025';node('#year').onchange();await drain();
   assert.deepEqual(calls.map(call=>call.path).sort(),['/dashboard/manager-api/api/v1/dashboard/follow-up','/dashboard/manager-api/api/v1/dashboard/screening']);

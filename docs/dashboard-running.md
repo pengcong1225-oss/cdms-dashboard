@@ -29,10 +29,12 @@ Manager需要包含此次新增的DashboardStatsController/DashboardStatsService
 | COPD-SQ问卷风险 | 同上 riskDistribution | 最新问卷总分≥16为高风险；缺问卷单列未评估，非急性加重风险 |
 | 当前预警患者 | /api/v1/monitoring/stats | activeAlertPatientCount，人数 |
 | 活动预警条数 / 动态 | /api/v1/monitoring/alerts/popup | remainingCount条数，动态为近60分钟新发活动告警 |
-| 慢阻肺共病升级 | /api/v1/dashboard/population 的 comorbidities | 人群特征与管理仅展示共病分布；不再提供月度趋势、管理分级页签 |
+| 慢阻肺共病 | /api/v1/dashboard/population 的 comorbidities | 展示共病分布；不再提供月度趋势、管理分级页签 |
 
 年度接口分别沿用sys:report:screening:list和sys:report:followup:list，其他模块沿用各自权限。范围在Manager按OrgRule子树校验；地图只按字符串机构ID匹配地图配置，不以名字/JavaScript数值ID合并数据。
 普通60秒、监测20秒轮询；切年份仅取消、清除和请求年度筛查/随访，人口、高危、监测与预警保留当前数据及在途请求。切机构范围取消所有旧请求并清除旧范围值。相同模块的在途请求复用同一Promise，每个模块独立epoch阻止取消后的旧响应覆盖新范围。401/403仅清除对应模块；同域管理端登录账号/token变化（含localStorage.clear）清除全部统计、机构选项和已打开明细，重新按新token读取。
+
+首屏业务统计立即发起，导航配置与地图下载独立完成，地图晚到时按最新数据和机构范围绘制。地图保留缩放、平移及机构联动，不再显示定位数量提示。对于成功返回 `meta.refreshing=true` 的模块，每3秒检查一次后台刷新结果，每轮最多5次；完成、失败、权限变更或数据过期即停止，常规60秒轮询继续保底。隐藏页面不发轮询请求，短轮询复用请求去重和权限隔离，不重置后台统计时间。
 
 接口成功或失败只更新依赖该模块的区块和状态；监测、预警、排行页签均不重建地图。相同缓存数据只更新状态，不重绘图表；地图点位仅在年度数据或机构范围改变时更新。年度更新保留现有地图缩放、平移以及街道事件处理器。
 机构明细与街道看板跟随年度数据，共病“更多”跟随人口数据；其来源内容更新、401/403清除或超过最大陈旧时间时关闭并清空弹窗，避免继续展示过期快照。

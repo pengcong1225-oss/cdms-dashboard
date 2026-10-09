@@ -14,7 +14,7 @@ ${panel('population','患者性别与年龄分布','当前确诊在管','<div id
 ${panel('institutions','机构工作量排行','年度事件',`<nav class="tabs" id="rank-tabs"><button class="active" data-key="sqScreeningCount">COPD-SQ</button><button data-key="lungFuncExamCount">肺功能</button><button data-key="score16Count">≥16分</button></nav><div id="ranking"></div><p class="footnote">按事件人次排序 · 点击机构联动地图</p>`,'<button class="text-button" id="all-institutions">明细 ↗</button>')}
 ${panel('monitoring','穿戴设备与预警动态','实时状态','<div id="wearable" class="mini-grid"></div><div class="subheading"><span>近60分钟新发活动预警</span><small>姓名脱敏</small></div><div id="alerts"></div>')}
 </aside><div class="center-column"><div id="metrics" class="metrics"></div>
-${panel('geography','武汉经济技术开发区（汉南区）','机构分布',`<div class="map-top"><span id="map-scope">全部授权机构</span><span>真实边界 · 滚轮缩放 / 拖动平移</span></div><div id="map"></div><div class="map-bottom"><span><i></i> 基层机构</span><span><i class="hospital"></i> 医院</span><span id="map-status"></span></div>`,'<button class="text-button" id="reset-scope">查看全部</button>')}
+${panel('geography','武汉经济技术开发区（汉南区）','机构分布',`<div class="map-top"><span id="map-scope">全部授权机构</span><span>真实边界 · 滚轮缩放 / 拖动平移</span></div><div id="map"></div><div class="map-bottom"><span><i></i> 基层机构</span><span><i class="hospital"></i> 医院</span></div>`,'<button class="text-button" id="reset-scope">查看全部</button>')}
 ${panel('insights','慢阻肺共病','当前确诊在管',`<div class="subheading">慢阻肺共病升级</div><div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
 </div><aside class="right-column">
 ${panel('overview','筛查与人群概况','年度 / 当前状态','<div id="overview-list"></div>')}
@@ -53,8 +53,6 @@ function renderStatus(key) {
  if(!key||key==='annual')renderMapStatus();
 }
 function renderMapStatus(){
- const a=data.annual,mapped=a?.filter(row=>metadata[String(row.orgId)]).length??0;
- document.querySelector('#map-status').textContent=a?`${mapped}/${a.length}家已定位${mapped<a.length?' · '+(a.length-mapped)+'家缺少坐标':''}`:'机构统计尚未连接';
  document.querySelector('#map-scope').textContent=scopeEl.selectedOptions[0]?.textContent??'全部授权机构';
 }
 const sections={};
@@ -156,8 +154,15 @@ document.querySelector('#close-detail').onclick=closeDetail;
 document.querySelector('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{document.querySelector('#connection').textContent='浏览器未允许全屏，请使用F11';}};
 document.addEventListener('fullscreenchange',()=>document.querySelector('#fullscreen').textContent=document.fullscreenElement?'退出全屏':'全屏');
 const clock=()=>{document.querySelector('#clock').textContent=new Date().toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});syncToken();refresh.checkFreshness();};clock();setInterval(clock,1000);
-try {const config=await fetch(mountedUrl('api/dashboard-config')).then(r=>r.json());if(/^https?:\/\//.test(config.managerUiUrl)||/^\/(?!\/)/.test(config.managerUiUrl))document.querySelector('.top-left a').href=config.managerUiUrl;document.querySelector('#legacy-entry').hidden=config.legacyAvailable!==true;}catch{}
-try {const [geo,config,streets]=await Promise.all([fetch(mountedUrl('map/whkfq.json')).then(r=>r.json()),fetch(mountedUrl('api/map-config')).then(r=>r.json()),fetch(mountedUrl('map/streets.json')).then(r=>r.json())]);metadata=config;map=createMap(document.querySelector('#map'),geo,metadata,selectOrg,streets,(name,rows)=>showDetail(`${name} · 机构看板`,data.annual?table(rows,metadata)+'<p class="footnote">机构按保留坐标匹配街道边界；本范围内无坐标的机构不纳入街道看板。</p>':'<div class="empty">管理端机构统计尚未连接</div>','annual'));}catch{document.querySelector('#map').innerHTML='<div class="empty">地图资源暂不可用</div>';}
 render(allKeys);renderStatus();poll(allKeys);
 setInterval(()=>poll(ordinaryKeys),60000);
 setInterval(()=>poll(monitoringKeys),20000);
+// Collect completed background refreshes promptly instead of waiting a full minute.
+setInterval(()=>{if(!syncToken()&&!document.hidden)void refresh.pollRefreshing();},3000);
+// Statistics do not depend on navigation configuration or map downloads.
+void (async()=>{
+ try {const config=await fetch(mountedUrl('api/dashboard-config')).then(r=>r.json());if(/^https?:\/\//.test(config.managerUiUrl)||/^\/(?!\/)/.test(config.managerUiUrl))document.querySelector('.top-left a').href=config.managerUiUrl;document.querySelector('#legacy-entry').hidden=config.legacyAvailable!==true;}catch{}
+})();
+void (async()=>{
+ try {const [geo,config,streets]=await Promise.all([fetch(mountedUrl('map/whkfq.json')).then(r=>r.json()),fetch(mountedUrl('api/map-config')).then(r=>r.json()),fetch(mountedUrl('map/streets.json')).then(r=>r.json())]);metadata=config;map=createMap(document.querySelector('#map'),geo,metadata,selectOrg,streets,(name,rows)=>showDetail(`${name} · 机构看板`,data.annual?table(rows,metadata)+'<p class="footnote">机构按保留坐标匹配街道边界；本范围内无坐标的机构不纳入街道看板。</p>':'<div class="empty">管理端机构统计尚未连接</div>','annual'));render(['scope']);}catch{document.querySelector('#map').innerHTML='<div class="empty">地图资源暂不可用</div>';}
+})();

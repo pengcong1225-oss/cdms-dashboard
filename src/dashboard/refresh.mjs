@@ -6,11 +6,12 @@ const timestamp=value=>value&&Number.isFinite(Date.parse(value))?String(value):n
 
 // Each module owns its epoch: changing the year must not invalidate current-state requests.
 export function createRefreshController({request,onChange=()=>{},now=Date.now,year,orgId='',token=null}) {
- const data={},states={},pending=new Map(),epochs=new Map();
+ const data={},states={},pending=new Map(),epochs=new Map(),followUpAttempts=new Map();
  let context={year:String(year),orgId:String(orgId),token};
  const notify=(key,dataChanged=false)=>onChange(key,{dataChanged});
  function clear(key) {
   epochs.set(key,(epochs.get(key)??0)+1);pending.get(key)?.controller.abort();pending.delete(key);
+  followUpAttempts.delete(key);
   delete data[key];delete states[key];notify(key,true);
  }
  function setContext(next) {
@@ -26,8 +27,9 @@ export function createRefreshController({request,onChange=()=>{},now=Date.now,ye
    else if(changed)notify(key);
   }
  }
- function load(key) {
+ function load(key,followUp=false) {
   if(pending.has(key))return pending.get(key).promise;
+  if(!followUp)followUpAttempts.delete(key);
   const controller=new AbortController(),epoch=epochs.get(key)??0,snapshot={...context};
   const valid=()=>epoch===(epochs.get(key)??0);
   states[key]??={error:null,dataUpdatedAt:null,receivedAt:null};states[key].loading=true;notify(key);
@@ -55,5 +57,15 @@ export function createRefreshController({request,onChange=()=>{},now=Date.now,ye
   });
   return entry.promise;
  }
- return {data,states,load,setContext,checkFreshness};
+ function pollRefreshing() {
+  checkFreshness();
+  const work=[];
+  for(const [key,state] of Object.entries(states)){
+   if(!state.refreshing||state.refreshFailed||state.error||!(key in data)||pending.has(key))continue;
+   const attempts=followUpAttempts.get(key)??0;if(attempts>=5)continue;
+   followUpAttempts.set(key,attempts+1);work.push(load(key,true));
+  }
+  return Promise.all(work);
+ }
+ return {data,states,load,setContext,checkFreshness,pollRefreshing};
 }

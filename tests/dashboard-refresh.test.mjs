@@ -54,6 +54,29 @@ test('metadata-free responses never claim a source timestamp and cache hits do n
  assert.equal(controller.states.monitoring.dataUpdatedAt,null);assert.ok(controller.states.monitoring.receivedAt);
  assert.equal(changes.filter(event=>event.dataChanged).length,1);
 });
+test('background refresh results are retrieved promptly and short polling stops once fresh',async()=>{
+ let calls=0;
+ const controller=await make({request:async()=>({data:{total:++calls},meta:{stale:calls===1,refreshing:calls===1}})});
+ await controller.load('annual');
+ assert.equal(typeof controller.pollRefreshing,'function');
+ await controller.pollRefreshing();
+ assert.equal(controller.data.annual.total,2);assert.equal(controller.states.annual.refreshing,false);
+ await controller.pollRefreshing();assert.equal(calls,2);
+});
+test('short polling is bounded, deduplicated, and stops after scope changes or permission failure',async()=>{
+ let calls=0,waiting=null,denied=false;
+ const controller=await make({request:async()=>{calls++;if(waiting)return waiting.promise;if(denied)throw Object.assign(Error('denied'),{status:403});return {data:{total:7},meta:{stale:true,refreshing:true}};}});
+ await controller.load('annual');
+ assert.equal(typeof controller.pollRefreshing,'function');
+ for(let i=0;i<10;i++)await controller.pollRefreshing();
+ assert.equal(calls,6,'one regular request plus at most five follow-ups');
+ await controller.load('annual');waiting=deferred();
+ const first=controller.pollRefreshing();await controller.pollRefreshing();assert.equal(calls,8,'pending follow-up cannot be duplicated');
+ controller.setContext({orgId:'1972545764702666753'});waiting.resolve({data:{total:999},meta:{refreshing:true}});await first;
+ assert.equal(controller.data.annual,undefined);await controller.pollRefreshing();assert.equal(calls,8);
+ waiting=null;await controller.load('annual');denied=true;await controller.pollRefreshing();const afterDenied=calls;
+ assert.equal(controller.data.annual,undefined);await controller.pollRefreshing();assert.equal(calls,afterDenied);
+});
 test('render dependencies repaint only affected sections and never repaint map on monitoring or rank changes',async()=>{
  const {createSectionRenderer}=await import('../src/dashboard/render.mjs');
  const rendered=[];const render=createSectionRenderer({map:{depends:['annual','scope'],render:()=>rendered.push('map')},ranking:{depends:['annual','rank','scope'],render:()=>rendered.push('ranking')},population:{depends:['population'],render:()=>rendered.push('population')},monitoring:{depends:['monitoring'],render:()=>rendered.push('monitoring')}});
