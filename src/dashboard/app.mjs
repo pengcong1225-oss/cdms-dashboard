@@ -13,7 +13,7 @@ ${panel('institutions','机构工作量排行','年度事件',`<nav class="tabs"
 ${panel('monitoring','穿戴设备与预警动态','实时状态','<div id="wearable" class="mini-grid"></div><div class="subheading"><span>近60分钟新发活动预警</span><small>姓名脱敏</small></div><div id="alerts"></div>')}
 </aside><div class="center-column"><div id="metrics" class="metrics"></div>
 ${panel('geography','武汉经济技术开发区（汉南区）','机构分布',`<div class="map-top"><span id="map-scope">全部授权机构</span><span>真实边界 · 滚轮缩放 / 拖动平移</span></div><div id="map"></div><div class="map-bottom"><span><i></i> 基层机构</span><span><i class="hospital"></i> 医院</span><span id="map-status"></span></div>`,'<button class="text-button" id="reset-scope">查看全部</button>')}
-${panel('insights','人群特征与管理','当前确诊在管',`<nav class="tabs" id="insight-tabs"><button data-view="comorbidities" class="active">合并症排行</button><button data-view="trend">月度趋势</button><button data-view="management">管理分级</button></nav><div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
+${panel('insights','人群特征与管理','当前确诊在管',`<div class="subheading">慢阻肺共病升级</div><div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
 </div><aside class="right-column">
 ${panel('overview','筛查与人群概况','年度 / 当前状态','<div id="overview-list"></div>')}
 ${panel('gold','肺功能GOLD分级','当前确诊在管','<div id="gold-bars"></div><p id="gold-note" class="footnote"></p>')}
@@ -23,9 +23,9 @@ ${panel('quality','档案质控情况','当前确诊在管','<div id="quality-ri
 
 const currentYear=new Date().getFullYear(),yearEl=document.querySelector('#year'),scopeEl=document.querySelector('#scope');
 for(let year=currentYear;year>=2024;year--)yearEl.add(new Option(`${year}年`,year));
-let metadata={},map,rankKey='sqScreeningCount',insightView='comorbidities',generation=0;
+let metadata={},map,rankKey='sqScreeningCount',generation=0;
 const data={},states={},controllers=new Set(),pending=new Map();
-const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/copd/stats',highrisk:'/highrisk/stats',screening:'/screening/stats',monitoring:'/monitoring/stats',alerts:'/monitoring/alerts/popup'};
+const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/copd/stats',highrisk:'/highrisk/stats',monitoring:'/monitoring/stats',alerts:'/monitoring/alerts/popup'};
 const state=key=>states[key]??={error:null,updated:null};
 const panelState=(id,key)=>document.querySelector(`#${id} .panel-state`).innerHTML=statusText(state(key));
 const localTime=()=>new Date().toLocaleTimeString('zh-CN',{hour12:false});
@@ -53,7 +53,7 @@ function render() {
  document.querySelector('#abe-bars').innerHTML=bars(p?.abeDistribution,p?.total);
  document.querySelector('#quality-ring').innerHTML=ring(p?{'已通过':p.qualityPassed,'未通过 / 待质控':Math.max(0,p.total-p.qualityPassed)}:null,p?.total,'档案人数');
  renderInsight();
- for(const [id,key] of [['population','population'],['institutions','annual'],['monitoring','monitoring'],['overview','annual'],['gold','population'],['risk','population'],['quality','population'],['insights',insightView==='trend'?'screening':'population']])panelState(id,key);
+ for(const [id,key] of [['population','population'],['institutions','annual'],['monitoring','monitoring'],['overview','annual'],['gold','population'],['risk','population'],['quality','population'],['insights','population']])panelState(id,key);
  const errors=Object.values(states).filter(s=>s.error);
  document.querySelector('#connection').textContent=errors.length?`${errors.length}个数据模块暂不可用 · ${errors[0].error}${Object.values(states).some(s=>s.updated)?' · 保留本范围上次成功数据':' · 暂无可展示的统计数据'}`:`管理端数据 · ${yearEl.value}年度事件 / 当前在管状态 · ${localTime()}`;
  document.querySelector('#connection').classList.toggle('has-error',errors.length>0);
@@ -66,24 +66,12 @@ function render() {
 function maskName(name) {const n=String(name??'匿名');if(n.includes('*'))return n;return n.length>1?n[0]+'**':'*';}
 function renderInsight() {
  const p=data.population,el=document.querySelector('#insight'),note=document.querySelector('#insight-note');
- if(insightView==='comorbidities'){
-  const all=Object.entries(p?.comorbidities??{}).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const totalMax=Math.max(1,...all.map(([,n])=>Number(n)));
-  // A shared maximum is retained across both columns, including when rank 6 is much smaller.
-  el.innerHTML=p?`<div class="comorbidity-grid">${[all.slice(0,5),all.slice(5)].map(items=>`<div>${items.map(([name,value])=>`<div class="bar-row"><span title="${esc(name)}">${esc(name)}</span><div class="track"><i style="width:${value/totalMax*100}%"></i></div><b>${fmt(value)}</b><small>${p.total?(value/p.total*100).toFixed(1):'0.0'}%</small></div>`).join('')}</div>`).join('')}</div>`:'<div class="empty">等待管理端合并症统计</div>';
-  if(p&&!all.length)el.innerHTML='<div class="empty">当前人群暂无合并症记录</div>';
-  note.textContent=`前10项 · 分母为当前确诊在管 ${fmt(p?.total)} 人 · 一人可有多种合并症`;
- }else if(insightView==='management'){
-  el.innerHTML=bars(p?.managementDistribution,p?.total);note.textContent='最新GRADE评估管理分级 · 缺少评估单列未分级';
- }else{
-  const rows=data.screening?.trend;
-  el.innerHTML=rows?trend(rows):'<div class="empty">等待管理端月度趋势</div>';
-  note.textContent='管理端筛查趋势 · 近12个月（独立于年度事件筛选）';
- }
-}
-function trend(rows) {
- const max=Math.max(1,...rows.map(r=>Number(r.total)));
- return `<div class="trend-chart">${rows.map(r=>`<div><div class="trend-bars"><i style="height:${Number(r.total)/max*100}%" title="${esc(r.month)} 筛查 ${fmt(r.total)}人"></i><i class="high" style="height:${Number(r.high)/max*100}%" title="高危 ${fmt(r.high)}人"></i></div><small>${esc(r.month.slice(2))}</small></div>`).join('')}</div><p class="trend-legend">● 筛查人数 <span>● 高危人数</span></p>`;
+ const all=Object.entries(p?.comorbidities??{}).sort((a,b)=>b[1]-a[1]).slice(0,10);
+ const totalMax=Math.max(1,...all.map(([,n])=>Number(n)));
+ // A shared maximum is retained across both columns, including when rank 6 is much smaller.
+ el.innerHTML=p?`<div class="comorbidity-grid">${[all.slice(0,5),all.slice(5)].map(items=>`<div>${items.map(([name,value])=>`<div class="bar-row"><span title="${esc(name)}">${esc(name)}</span><div class="track"><i style="width:${value/totalMax*100}%"></i></div><b>${fmt(value)}</b><small>${p.total?(value/p.total*100).toFixed(1):'0.0'}%</small></div>`).join('')}</div>`).join('')}</div>`:'<div class="empty">等待管理端合并症统计</div>';
+ if(p&&!all.length)el.innerHTML='<div class="empty">当前人群暂无合并症记录</div>';
+ note.textContent=`前10项 · 分母为当前确诊在管 ${fmt(p?.total)} 人 · 一人可有多种合并症`;
 }
 async function load(key,epoch=generation) {
  if(pending.get(key)?.epoch===epoch)return;
@@ -124,10 +112,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr
 yearEl.onchange=refreshScope;scopeEl.onchange=refreshScope;document.querySelector('#reset-scope').onclick=()=>{scopeEl.value='';refreshScope();};
 window.addEventListener('storage',event=>{if(event.key==='token'){scopeEl.replaceChildren(new Option('全部授权机构',''));refreshScope();}});
 document.querySelector('#rank-tabs').onclick=e=>{if(!e.target.dataset.key)return;rankKey=e.target.dataset.key;document.querySelectorAll('#rank-tabs button').forEach(b=>b.classList.toggle('active',b===e.target));render();};
-document.querySelector('#insight-tabs').onclick=e=>{if(!e.target.dataset.view)return;insightView=e.target.dataset.view;document.querySelectorAll('#insight-tabs button').forEach(b=>b.classList.toggle('active',b===e.target));render();};
 const showDetail=(title,body)=>{document.querySelector('#detail-title').textContent=title;document.querySelector('#detail-body').innerHTML=body;document.querySelector('#detail').showModal();};
 document.querySelector('#all-institutions').onclick=()=>showDetail(`${yearEl.value}年度机构工作量明细`,table(data.annual,metadata));
-document.querySelector('#more-insights').onclick=()=>showDetail(insightView==='comorbidities'?'全部合并症（患者内去重）':insightView==='trend'?'近12个月趋势':'管理分级',insightView==='comorbidities'?bars(data.population?.comorbidities,data.population?.total):document.querySelector('#insight').innerHTML);
+document.querySelector('#more-insights').onclick=()=>showDetail('慢阻肺共病升级（患者内去重）',bars(data.population?.comorbidities,data.population?.total));
 document.querySelector('#close-detail').onclick=()=>document.querySelector('#detail').close();
 document.querySelector('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{document.querySelector('#connection').textContent='浏览器未允许全屏，请使用F11';}};
 document.addEventListener('fullscreenchange',()=>document.querySelector('#fullscreen').textContent=document.fullscreenElement?'退出全屏':'全屏');
@@ -135,5 +122,5 @@ const clock=()=>document.querySelector('#clock').textContent=new Date().toLocale
 try {const config=await fetch(mountedUrl('api/dashboard-config')).then(r=>r.json());if(/^https?:\/\//.test(config.managerUiUrl)||/^\/(?!\/)/.test(config.managerUiUrl))document.querySelector('.top-left a').href=config.managerUiUrl;document.querySelector('#legacy-entry').hidden=config.legacyAvailable!==true;}catch{}
 try {const [geo,config,streets]=await Promise.all([fetch(mountedUrl('map/whkfq.json')).then(r=>r.json()),fetch(mountedUrl('api/map-config')).then(r=>r.json()),fetch(mountedUrl('map/streets.json')).then(r=>r.json())]);metadata=config;map=createMap(document.querySelector('#map'),geo,metadata,selectOrg,streets,(name,rows)=>showDetail(`${name} · 机构看板`,data.annual?table(rows,metadata)+'<p class="footnote">机构按保留坐标匹配街道边界；本范围内无坐标的机构不纳入街道看板。</p>':'<div class="empty">管理端机构统计尚未连接</div>'));}catch{document.querySelector('#map').innerHTML='<div class="empty">地图资源暂不可用</div>';}
 refreshScope();
-setInterval(()=>{if(!document.hidden)for(const key of ['annual','followup','population','screening','highrisk'])load(key);},60000);
+setInterval(()=>{if(!document.hidden)for(const key of ['annual','followup','population','highrisk'])load(key);},60000);
 setInterval(()=>{if(!document.hidden)for(const key of ['monitoring','alerts'])load(key);},20000);

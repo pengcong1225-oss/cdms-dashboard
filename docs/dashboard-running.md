@@ -29,7 +29,7 @@ Manager需要包含此次新增的DashboardStatsController/DashboardStatsService
 | COPD-SQ问卷风险 | 同上 riskDistribution | 最新问卷总分≥16为高风险；缺问卷单列未评估，非急性加重风险 |
 | 当前预警患者 | /api/v1/monitoring/stats | activeAlertPatientCount，人数 |
 | 活动预警条数 / 动态 | /api/v1/monitoring/alerts/popup | remainingCount条数，动态为近60分钟新发活动告警 |
-| 月度趋势 | /api/v1/screening/stats | 管理端近12个月，不随年度切换 |
+| 慢阻肺共病升级 | /api/v1/copd/stats 的 comorbidities | 人群特征与管理仅展示共病分布；不再提供月度趋势、管理分级页签 |
 
 年度接口分别沿用sys:report:screening:list和sys:report:followup:list，其他模块沿用各自权限。范围在Manager按OrgRule子树校验；地图只按字符串机构ID匹配地图配置，不以名字/JavaScript数值ID合并数据。
 普通60秒、监测20秒刷新；切范围取消旧请求并清除旧范围值；连接失败保留本范围最后成功数据且提示更新时间。401/403清除该模块旧数据；同域管理端登录账号/token变化时重置机构选项和全部统计。不同模块可独立失败。
