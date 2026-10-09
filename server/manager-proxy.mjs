@@ -1,4 +1,4 @@
-const allowed=new Set(['/api/v1/dashboard/screening','/api/v1/dashboard/follow-up','/api/v1/copd/stats','/api/v1/screening/stats','/api/v1/highrisk/stats','/api/v1/monitoring/stats','/api/v1/monitoring/alerts/popup']);
+const allowed=new Set(['/api/v1/dashboard/screening','/api/v1/dashboard/follow-up','/api/v1/dashboard/population','/api/v1/dashboard/high-risk','/api/v1/copd/stats','/api/v1/screening/stats','/api/v1/highrisk/stats','/api/v1/monitoring/stats','/api/v1/monitoring/alerts/popup']);
 export function createManagerProxy({baseUrl=process.env.MANAGER_BASE_URL,fetchImpl=fetch}={}) {
  return async (path,headers={})=>{
   const url=new URL(path,'http://local');

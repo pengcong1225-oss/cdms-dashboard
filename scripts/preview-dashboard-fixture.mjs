@@ -9,12 +9,15 @@ const population={total:20,stable:18,acuteExacerbation:2,qualityPassed:14,ageBuc
 const payloads={
  '/api/v1/dashboard/screening':rows,
  '/api/v1/dashboard/follow-up':rows.map(row=>({...row,visitCount:10})),
- '/api/v1/copd/stats':population,
- '/api/v1/highrisk/stats':{total:32,pending:8},
+ '/api/v1/dashboard/population':population,
+ '/api/v1/dashboard/high-risk':{total:32,pending:8},
  '/api/v1/screening/stats':{trend:Array.from({length:12},(_,i)=>({month:`2026-${String(i+1).padStart(2,'0')}`,total:15+i*4,high:2+i}))},
  '/api/v1/monitoring/stats':{managedPatientCount:20,boundPatientCount:12,activeAlertPatientCount:2,offlinePatientCount:3},
  '/api/v1/monitoring/alerts/popup':{remainingCount:3,alerts:[{patientName:'测**',alertType:'SPO2',alertValue:88,alertUnit:'%',level:2,occurredAt:'2026-10-08T10:00:00'},{patientName:'样**',alertType:'HEART_RATE',alertValue:110,alertUnit:'bpm',level:1,occurredAt:'2026-10-08T09:50:00'}]}
 };
+// Fixture timestamps are fixed to server start; polling this sample must not pretend to update data.
+const capturedAt=new Date();
+const fixtureMeta={dataUpdatedAt:capturedAt.toISOString(),stale:false,refreshing:false,refreshFailed:false,freshUntil:new Date(+capturedAt+180000).toISOString(),staleUntil:new Date(+capturedAt+780000).toISOString()};
 createServer(async(req,res)=>{
  try {
   const url=new URL(req.url,'http://localhost');
@@ -23,7 +26,7 @@ createServer(async(req,res)=>{
   if(url.pathname.startsWith('/manager-api/')){
    const path=url.pathname.replace('/manager-api','');let data=payloads[path];
    if(Array.isArray(data)&&url.searchParams.has('orgId'))data=data.filter(row=>row.orgId===url.searchParams.get('orgId'));
-   res.setHeader('Content-Type','application/json');return res.end(JSON.stringify({code:200,data}));
+   res.setHeader('Content-Type','application/json');return res.end(JSON.stringify({code:200,data,...(path.startsWith('/api/v1/dashboard/')?{meta:fixtureMeta}:{})}));
   }
   const file=resolve(root,url.pathname==='/'?'index.html':url.pathname.slice(1));
   if(!file.startsWith(root))throw Error('path');

@@ -22,6 +22,7 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet) {
  let zoom=1,dx=0,dy=0,drag=null,moved=false,visibleRows=[],selected='';
  const transform=()=>scene.setAttribute('transform',`translate(${dx} ${dy}) translate(500 290) scale(${zoom}) translate(-500 -290)`);
  function update(rows,orgId='') {
+  tooltip.hidden=true;
   visibleRows=rows??[]; selected=orgId;
   const byId=new Map(visibleRows.map(row=>[String(row.orgId),row]));
   points.innerHTML=Object.entries(metadata).filter(([id])=>byId.has(id)).map(([id,item])=>{

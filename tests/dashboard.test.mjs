@@ -89,6 +89,18 @@ test('manager failures never become successful zero data', async () => {
  const proxy=createManagerProxy({baseUrl:'http://127.0.0.1:8081',fetchImpl:async()=>{throw Error('offline');}});
  assert.equal((await proxy('/api/v1/copd/stats',{authorization:'Bearer user-token'})).status,503);
 });
+test('manager proxy forwards cached dashboard metadata and read-only population paths',async()=>{
+ const {createManagerProxy}=await import('../server/manager-proxy.mjs');
+ const meta={dataUpdatedAt:'2026-10-09T00:00:00Z',stale:true,refreshing:true,refreshFailed:false,freshUntil:'2026-10-09T00:00:45Z',staleUntil:'2026-10-09T00:02:45Z'};
+ const calls=[];const proxy=createManagerProxy({baseUrl:'http://127.0.0.1:8081/cdmsmanager',fetchImpl:async(url,options)=>{calls.push({url,options});return Response.json({code:200,data:{total:7},meta});}});
+ for(const path of ['/api/v1/dashboard/population','/api/v1/dashboard/high-risk']){
+  const result=await proxy(`${path}?orgId=1972545764702666753`,{authorization:'Bearer user-token'});
+  assert.equal(result.status,200);assert.deepEqual(result.body.meta,meta);
+ }
+ assert.equal(calls[0].url,'http://127.0.0.1:8081/cdmsmanager/api/v1/dashboard/population?orgId=1972545764702666753');
+ assert.equal(calls[1].options.headers.Authorization,'Bearer user-token');
+ assert.equal((await proxy('/api/v1/dashboard/population?orgId=1972545764702666753&keyword=patient',{authorization:'Bearer user-token'})).status,400);
+});
 test('real local server serves ES modules with JavaScript MIME and blocks mutating manager requests',async()=>{
  const cwd=fileURLToPath(new URL('../',import.meta.url));
  const build=spawn(process.execPath,['scripts/build.mjs'],{cwd,stdio:'ignore'});

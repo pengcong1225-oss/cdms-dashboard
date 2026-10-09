@@ -16,8 +16,11 @@ export function ring(values,total,label) {
  return `<div class="ring-row"><div class="ring" style="background:conic-gradient(${total?stops.join(','):'#243757'})"><div><b>${fmt(total)}</b><small>${esc(label)}</small></div></div><div class="legend">${entries.map(([key,n],i)=>`<div><i style="background:${colors[i%3]}"></i><span>${esc(key)}</span><b>${fmt(n)}</b><small>${total?(Number(n)/total*100).toFixed(1):'0.0'}%</small></div>`).join('')}</div></div>`;
 }
 export function statusText(state) {
- if(state.error)return `<span class="state-error">${esc(state.error)}${state.updated?` · 上次成功 ${esc(state.updated)}`:''}</span>`;
- return state.updated?`<span class="state-ok">更新 ${esc(state.updated)}</span>`:'<span>正在连接管理端</span>';
+ const time=value=>new Date(value).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+ const updated=state.dataUpdatedAt?`数据更新 ${time(state.dataUpdatedAt)}`:state.receivedAt?`收到 ${time(state.receivedAt)} · 数据更新时间未提供`:'';
+ const flags=[state.error,state.stale?'数据陈旧':null,state.refreshFailed?'刷新失败':null,state.refreshing?'后台刷新中':state.loading?'请求中':null].filter(Boolean);
+ if(!updated&&!flags.length)return '<span>正在连接管理端</span>';
+ return `<span class="${state.error||state.stale||state.refreshFailed?'state-error':'state-ok'}">${esc([updated,...flags].filter(Boolean).join(' · '))}</span>`;
 }
 export function table(rows,metadata) {
  if(!rows)return '<div class="empty">机构统计暂不可用</div>';

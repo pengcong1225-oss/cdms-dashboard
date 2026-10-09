@@ -2,6 +2,8 @@ import {formatNumber as fmt,escapeHtml as esc,rankRows,sum} from './model.mjs';
 import {bars,ring,metric,statusText,table} from './components.mjs';
 import {createMap} from './map.mjs';
 import {dashboardUrl} from './paths.mjs';
+import {createRefreshController,annualKeys,ordinaryKeys,monitoringKeys,allKeys} from './refresh.mjs';
+import {createSectionRenderer} from './render.mjs';
 const mountedUrl=path=>dashboardUrl(path,document.baseURI);
 
 const panel=(id,title,note,body,actions='')=>`<section class="panel" id="${id}"><header><h2>${title}</h2><small>${note}</small>${actions}</header><div class="panel-body">${body}</div><footer class="panel-state"></footer></section>`;
@@ -23,46 +25,69 @@ ${panel('quality','档案质控情况','当前确诊在管','<div id="quality-ri
 
 const currentYear=new Date().getFullYear(),yearEl=document.querySelector('#year'),scopeEl=document.querySelector('#scope');
 for(let year=currentYear;year>=2024;year--)yearEl.add(new Option(`${year}年`,year));
-let metadata={},map,rankKey='sqScreeningCount',generation=0;
-const data={},states={},controllers=new Set(),pending=new Map();
-const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/copd/stats',highrisk:'/highrisk/stats',monitoring:'/monitoring/stats',alerts:'/monitoring/alerts/popup'};
-const state=key=>states[key]??={error:null,updated:null};
-const panelState=(id,key)=>document.querySelector(`#${id} .panel-state`).innerHTML=statusText(state(key));
-const localTime=()=>new Date().toLocaleTimeString('zh-CN',{hour12:false});
-
-function render() {
- const p=data.population,m=data.monitoring,a=data.annual,f=data.followup;
- document.querySelector('#metrics').innerHTML=[
-  metric('COPD-SQ筛查',sum(a,'sqScreeningCount'),'人次',`${yearEl.value}年度问卷事件`),
-  metric('高危人群',data.highrisk?.total,'人',`当前 · 待确诊 ${fmt(data.highrisk?.pending)} 人`,'blue'),
-  metric('确诊在管人群',p?.total,'人','当前活跃管理','purple'),
-  metric('随访记录',sum(f,'visitCount'),'人次',`${yearEl.value}年度随访事件`,'green'),
-  metric('在管监测人数',m?.managedPatientCount,'人','当前监测范围','blue'),
-  metric('当前预警患者',m?.activeAlertPatientCount,'人',`活动预警 ${fmt(data.alerts?.remainingCount)} 条`,'pink')
- ].join('');
+let metadata={},map,rankKey='sqScreeningCount',activeToken=localStorage.getItem('token'),detailSource=null;
+const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/dashboard/population',highrisk:'/dashboard/high-risk',monitoring:'/monitoring/stats',alerts:'/monitoring/alerts/popup'};
+const refresh=createRefreshController({year:yearEl.value,token:activeToken,request:requestData,onChange:(key,event)=>{
+ if(event.dataChanged&&detailSource===key)closeDetail();
+ if(key==='annual'&&event.dataChanged&&data.annual&&!scopeEl.value)updateScopes(data.annual);
+ if(event.dataChanged)render([key]);renderStatus(key);
+}});
+const {data,states}=refresh;
+const state=key=>states[key]??{};
+const names={annual:'年度筛查',followup:'年度随访',population:'在管人群',highrisk:'高危人群',monitoring:'监测',alerts:'预警'};
+const panelSources={population:['population'],institutions:['annual'],monitoring:['monitoring','alerts'],overview:['annual','followup','highrisk','population'],gold:['population'],risk:['population'],quality:['population'],insights:['population'],geography:['annual']};
+function renderStatus(key) {
+ for(const [id,keys] of Object.entries(panelSources))if(!key||keys.includes(key)){
+  const priority=k=>state(k).error?4:state(k).refreshFailed?3:state(k).stale?2:state(k).loading||state(k).refreshing?1:0;
+  const selected=[...keys].sort((a,b)=>priority(b)-priority(a)||String(state(a).dataUpdatedAt??'').localeCompare(String(state(b).dataUpdatedAt??'')))[0];
+  const footer=document.querySelector(`#${id} .panel-state`);
+  footer.innerHTML=(keys.length>1?`${esc(names[selected])} · `:'')+statusText(state(selected));
+  footer.title=keys.map(k=>`${names[k]}: ${statusText(state(k)).replace(/<[^>]*>/g,'')}`).join('\n');
+ }
+ const values=Object.values(states),errors=values.filter(s=>s.error||s.refreshFailed),stale=values.filter(s=>s.stale),updating=values.filter(s=>s.loading||s.refreshing);
+ const times=values.map(s=>s.dataUpdatedAt).filter(Boolean).sort();
+ const actualTime=times.length?` · 统计数据最早更新 ${new Date(times[0]).toLocaleString('zh-CN',{hour12:false})}`:'';
+ const warnings=[errors.length?`${errors.length}个模块刷新失败`:null,stale.length?`${stale.length}个模块数据陈旧`:null,updating.length?`${updating.length}个模块刷新中`:null].filter(Boolean);
+ document.querySelector('#connection').textContent=`管理端数据 · ${yearEl.value}年度事件 / 当前在管状态${actualTime}${warnings.length?' · '+warnings.join(' · '):''}${errors[0]?.error?' · '+errors[0].error:''}`;
+ document.querySelector('#connection').classList.toggle('has-error',errors.length>0||stale.length>0);
+ if(!key||key==='annual')renderMapStatus();
+}
+function renderMapStatus(){
+ const a=data.annual,mapped=a?.filter(row=>metadata[String(row.orgId)]).length??0;
+ document.querySelector('#map-status').textContent=a?`${mapped}/${a.length}家已定位${mapped<a.length?' · '+(a.length-mapped)+'家缺少坐标':''}`:'机构统计尚未连接';
+ document.querySelector('#map-scope').textContent=scopeEl.selectedOptions[0]?.textContent??'全部授权机构';
+}
+const sections={};
+const add=(id,depends,update)=>sections[id]={depends,render:update};
+document.querySelector('#metrics').innerHTML=Array.from({length:6},(_,i)=>`<div id="metric-${i}" class="metric-slot"></div>`).join('');
+const metricSources=[['annual'],['highrisk'],['population'],['followup'],['monitoring'],['monitoring','alerts']];
+const metricContent=[()=>metric('COPD-SQ筛查',sum(data.annual,'sqScreeningCount'),'人次',`${yearEl.value}年度问卷事件`),()=>metric('高危人群',data.highrisk?.total,'人',`当前 · 待确诊 ${fmt(data.highrisk?.pending)} 人`,'blue'),()=>metric('确诊在管人群',data.population?.total,'人','当前活跃管理','purple'),()=>metric('随访记录',sum(data.followup,'visitCount'),'人次',`${yearEl.value}年度随访事件`,'green'),()=>metric('在管监测人数',data.monitoring?.managedPatientCount,'人','当前监测范围','blue'),()=>metric('当前预警患者',data.monitoring?.activeAlertPatientCount,'人',`活动预警 ${fmt(data.alerts?.remainingCount)} 条`,'pink')];
+metricContent.forEach((content,i)=>add(`metric-${i}`,metricSources[i],()=>document.querySelector(`#metric-${i}`).innerHTML=content()));
+add('population',['population'],()=>{
+ const p=data.population;
  document.querySelector('#gender').innerHTML=ring(p?.genderDistribution,p?.total,'确诊在管');
  document.querySelector('#age').innerHTML=bars(p?.ageBuckets,p?.total);
- const ranks=a?rankRows(a,rankKey):null;
- document.querySelector('#ranking').innerHTML=ranks?.length?ranks.slice(0,8).map((r,i)=>`<button class="rank-row ${String(r.orgId)===scopeEl.value?'selected':''}" data-org="${esc(r.orgId)}"><span class="rank-number">${String(i+1).padStart(2,'0')}</span><span class="rank-label" title="${esc(r.orgName)}">${esc(metadata[r.orgId]?.shortName??r.orgName)}</span><div class="rank-track"><i style="width:${r.share}%"></i></div><b>${fmt(r.value)}</b><small>${r.share.toFixed(1)}%</small></button>`).join(''):`<div class="empty">${a?'当前范围暂无机构数据':'等待管理端机构统计'}</div>`;
- document.querySelector('#wearable').innerHTML=[['在管监测',m?.managedPatientCount],['已绑定设备',m?.boundPatientCount],['当前预警',m?.activeAlertPatientCount],['设备离线',m?.offlinePatientCount]].map(([label,value])=>`<div><span>${label}</span><b>${fmt(value)}<small>人</small></b></div>`).join('');
- document.querySelector('#alerts').innerHTML=data.alerts?.alerts?.length?data.alerts.alerts.slice(0,6).map(r=>`<div class="alert-row"><i class="${r.level===2?'critical':''}"></i><b>${esc(maskName(r.patientName))}</b><span>${esc(r.alertType==='SPO2'?'血氧':'心率')} ${fmt(r.alertValue)}${esc(r.alertUnit)}</span><time>${esc(String(r.occurredAt??'').replace('T',' ').slice(5,16))}</time></div>`).join(''):`<div class="empty">${data.alerts?'近60分钟暂无新发活动预警':'等待管理端监测数据'}</div>`;
- document.querySelector('#overview-list').innerHTML=[['COPD-SQ问卷',sum(a,'sqScreeningCount'),'人次','年度'],['≥16分问卷',sum(a,'score16Count'),'人次','年度'],['开展肺功能检查',sum(a,'lungFuncExamCount'),'人次','年度'],['高危人群',data.highrisk?.total,'人','当前'],['待确诊',data.highrisk?.pending,'人','当前'],['确诊在管',p?.total,'人','当前'],['随访记录',sum(f,'visitCount'),'人次','年度']].map(([label,value,unit,period])=>`<div class="overview-row"><span><i></i>${label}<small>${period}</small></span><b>${fmt(value)}<small>${unit}</small></b></div>`).join('');
  document.querySelector('#gold-bars').innerHTML=bars(p?.goldDistribution,p?.goldGradedTotal);
  document.querySelector('#gold-note').textContent=`占比分母：已分级 ${fmt(p?.goldGradedTotal)} 人 · 未分级 ${fmt(p?.goldUngraded)} 人`;
  document.querySelector('#risk-summary').innerHTML=bars(p?.riskDistribution,p?.total);
  document.querySelector('#abe-bars').innerHTML=bars(p?.abeDistribution,p?.total);
  document.querySelector('#quality-ring').innerHTML=ring(p?{'已通过':p.qualityPassed,'未通过 / 待质控':Math.max(0,p.total-p.qualityPassed)}:null,p?.total,'档案人数');
  renderInsight();
- for(const [id,key] of [['population','population'],['institutions','annual'],['monitoring','monitoring'],['overview','annual'],['gold','population'],['risk','population'],['quality','population'],['insights','population']])panelState(id,key);
- const errors=Object.values(states).filter(s=>s.error);
- document.querySelector('#connection').textContent=errors.length?`${errors.length}个数据模块暂不可用 · ${errors[0].error}${Object.values(states).some(s=>s.updated)?' · 保留本范围上次成功数据':' · 暂无可展示的统计数据'}`:`管理端数据 · ${yearEl.value}年度事件 / 当前在管状态 · ${localTime()}`;
- document.querySelector('#connection').classList.toggle('has-error',errors.length>0);
- const selectedLabel=scopeEl.selectedOptions[0]?.textContent??'全部授权机构';
- document.querySelector('#map-scope').textContent=selectedLabel;
- const mapped=a?.filter(row=>metadata[String(row.orgId)]).length??0;
- document.querySelector('#map-status').textContent=a?`${mapped}/${a.length}家已定位${mapped<a.length?' · '+(a.length-mapped)+'家缺少坐标':''} · ${state('annual').updated??'—'}`:'机构统计尚未连接';
- map?.update(a??[],scopeEl.value);
-}
+});
+add('ranking',['annual','scope','rank'],()=>{
+ const a=data.annual,ranks=a?rankRows(a,rankKey):null;
+ document.querySelector('#ranking').innerHTML=ranks?.length?ranks.slice(0,8).map((r,i)=>`<button class="rank-row ${String(r.orgId)===scopeEl.value?'selected':''}" data-org="${esc(r.orgId)}"><span class="rank-number">${String(i+1).padStart(2,'0')}</span><span class="rank-label" title="${esc(r.orgName)}">${esc(metadata[String(r.orgId)]?.shortName??r.orgName)}</span><div class="rank-track"><i style="width:${r.share}%"></i></div><b>${fmt(r.value)}</b><small>${r.share.toFixed(1)}%</small></button>`).join(''):`<div class="empty">${a?'当前范围暂无机构数据':'等待管理端机构统计'}</div>`;
+});
+add('wearable',['monitoring'],()=>{
+ const m=data.monitoring;
+ document.querySelector('#wearable').innerHTML=[['在管监测',m?.managedPatientCount],['已绑定设备',m?.boundPatientCount],['当前预警',m?.activeAlertPatientCount],['设备离线',m?.offlinePatientCount]].map(([label,value])=>`<div><span>${label}</span><b>${fmt(value)}<small>人</small></b></div>`).join('');
+});
+add('alerts',['alerts'],()=>document.querySelector('#alerts').innerHTML=data.alerts?.alerts?.length?data.alerts.alerts.slice(0,6).map(r=>`<div class="alert-row"><i class="${r.level===2?'critical':''}"></i><b>${esc(maskName(r.patientName))}</b><span>${esc(r.alertType==='SPO2'?'血氧':'心率')} ${fmt(r.alertValue)}${esc(r.alertUnit)}</span><time>${esc(String(r.occurredAt??'').replace('T',' ').slice(5,16))}</time></div>`).join(''):`<div class="empty">${data.alerts?'近60分钟暂无新发活动预警':'等待管理端监测数据'}</div>`);
+document.querySelector('#overview-list').innerHTML=Array.from({length:7},(_,i)=>`<div id="overview-${i}" class="overview-row"></div>`).join('');
+const overviewRows=[['COPD-SQ问卷','annual',()=>sum(data.annual,'sqScreeningCount'),'人次','年度'],['≥16分问卷','annual',()=>sum(data.annual,'score16Count'),'人次','年度'],['开展肺功能检查','annual',()=>sum(data.annual,'lungFuncExamCount'),'人次','年度'],['高危人群','highrisk',()=>data.highrisk?.total,'人','当前'],['待确诊','highrisk',()=>data.highrisk?.pending,'人','当前'],['确诊在管','population',()=>data.population?.total,'人','当前'],['随访记录','followup',()=>sum(data.followup,'visitCount'),'人次','年度']];
+overviewRows.forEach(([label,key,value,unit,period],i)=>add(`overview-${i}`,[key],()=>document.querySelector(`#overview-${i}`).innerHTML=`<span><i></i>${label}<small>${period}</small></span><b>${fmt(value())}<small>${unit}</small></b>`));
+add('map',['annual','scope'],()=>{renderMapStatus();map?.update(data.annual??[],scopeEl.value);});
+const render=createSectionRenderer(sections);
 function maskName(name) {const n=String(name??'匿名');if(n.includes('*'))return n;return n.length>1?n[0]+'**':'*';}
 function renderInsight() {
  const p=data.population,el=document.querySelector('#insight'),note=document.querySelector('#insight-note');
@@ -73,27 +98,29 @@ function renderInsight() {
  if(p&&!all.length)el.innerHTML='<div class="empty">当前人群暂无合并症记录</div>';
  note.textContent=`前10项 · 分母为当前确诊在管 ${fmt(p?.total)} 人 · 一人可有多种合并症`;
 }
-async function load(key,epoch=generation) {
- if(pending.get(key)?.epoch===epoch)return;
- const controller=new AbortController();controllers.add(controller);
- pending.set(key,{epoch,controller});
- const params=new URLSearchParams();if(scopeEl.value)params.set('orgId',scopeEl.value);
- if(['annual','followup'].includes(key))params.set('year',yearEl.value);
- if(key==='alerts')params.set('minutes','60');
- const token=localStorage.getItem('token');
+async function requestData(key,context,signal) {
  try {
-  const response=await fetch(mountedUrl(`manager-api/api/v1${endpoints[key]}?${params}`),{headers:token?{Authorization:`Bearer ${token}`}:{},signal:controller.signal});
-  const result=await response.json();
+ const params=new URLSearchParams();if(context.orgId)params.set('orgId',context.orgId);
+ if(annualKeys.includes(key))params.set('year',context.year);
+ if(key==='alerts')params.set('minutes','60');
+ const response=await fetch(mountedUrl(`manager-api/api/v1${endpoints[key]}?${params}`),{headers:context.token?{Authorization:`Bearer ${context.token}`}:{},signal});
+ let result;
+ try{
+  result=await response.json();
+ }catch{
+  const error=Error(response.status===401?'请先从管理端登录':response.status===403?'当前账号无此模块权限':'统计响应不可用');error.status=response.status;throw error;
+ }
   if(!response.ok||![0,200,'200','0'].includes(result.code)){
-   const status=Number(result.code)||response.status;
+   const status=response.ok?Number(result.code):response.status;
    const error=Error(status===401?'请先从管理端登录':status===403?'当前账号无此模块权限':result.message??result.msg??'统计请求失败');
    error.status=status;throw error;
   }
-  if(epoch!==generation)return;
-  data[key]=result.data;states[key]={error:null,updated:localTime()};
-  if(key==='annual'&&!scopeEl.value)updateScopes(result.data);
- }catch(error){if(error.name==='AbortError'||epoch!==generation)return;if([401,403].includes(error.status)){delete data[key];state(key).updated=null;}state(key).error=error.message;}
- finally {controllers.delete(controller);if(pending.get(key)?.controller===controller)pending.delete(key);if(epoch===generation)render();}
+ return {data:result.data,meta:result.meta};
+ }finally{
+  // Same-document localStorage writes do not emit storage events. Invalidate before accepting
+  // a response if login changed while the request was in flight, even before the next clock tick.
+  syncToken();
+ }
 }
 function updateScopes(rows) {
  const selected=scopeEl.value;scopeEl.replaceChildren(new Option('全部授权机构',''));
@@ -101,26 +128,36 @@ function updateScopes(rows) {
  scopeEl.value=selected;
 }
 function refreshScope() {
- generation++;for(const controller of controllers)controller.abort();controllers.clear();
- pending.clear();
- for(const key of Object.keys(data))delete data[key];for(const key of Object.keys(states))delete states[key];
- render();for(const key of Object.keys(endpoints))load(key);
+ if(syncToken())return;
+ closeDetail();
+ const keys=refresh.setContext({orgId:scopeEl.value,year:yearEl.value});
+ render(['scope']);for(const key of keys)refresh.load(key);
 }
+function syncToken(){
+ const token=localStorage.getItem('token');if(token===activeToken)return false;activeToken=token;
+ scopeEl.replaceChildren(new Option('全部授权机构',''));closeDetail();
+ refresh.setContext({token,orgId:'',year:yearEl.value});render(['scope']);for(const key of allKeys)refresh.load(key);return true;
+}
+function poll(keys){if(syncToken()||document.hidden)return;for(const key of keys)refresh.load(key);}
 function selectOrg(id) {if([...scopeEl.options].some(o=>o.value===String(id))){scopeEl.value=String(id);refreshScope();}}
-document.addEventListener('click',e=>{const node=e.target.closest('[data-org]');if(node){selectOrg(node.dataset.org);document.querySelector('#detail').close();}});
+document.addEventListener('click',e=>{const node=e.target.closest('[data-org]');if(node){selectOrg(node.dataset.org);closeDetail();}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr[data-org]'))selectOrg(e.target.dataset.org);});
-yearEl.onchange=refreshScope;scopeEl.onchange=refreshScope;document.querySelector('#reset-scope').onclick=()=>{scopeEl.value='';refreshScope();};
-window.addEventListener('storage',event=>{if(event.key==='token'){scopeEl.replaceChildren(new Option('全部授权机构',''));refreshScope();}});
-document.querySelector('#rank-tabs').onclick=e=>{if(!e.target.dataset.key)return;rankKey=e.target.dataset.key;document.querySelectorAll('#rank-tabs button').forEach(b=>b.classList.toggle('active',b===e.target));render();};
-const showDetail=(title,body)=>{document.querySelector('#detail-title').textContent=title;document.querySelector('#detail-body').innerHTML=body;document.querySelector('#detail').showModal();};
-document.querySelector('#all-institutions').onclick=()=>showDetail(`${yearEl.value}年度机构工作量明细`,table(data.annual,metadata));
-document.querySelector('#more-insights').onclick=()=>showDetail('慢阻肺共病升级（患者内去重）',bars(data.population?.comorbidities,data.population?.total));
-document.querySelector('#close-detail').onclick=()=>document.querySelector('#detail').close();
+yearEl.onchange=()=>{if(syncToken())return;closeDetail();for(const key of refresh.setContext({year:yearEl.value}))refresh.load(key);};
+scopeEl.onchange=refreshScope;document.querySelector('#reset-scope').onclick=()=>{scopeEl.value='';refreshScope();};
+window.addEventListener('storage',event=>{if(event.key==='token'||event.key===null)syncToken();});
+window.addEventListener('focus',()=>{syncToken();refresh.checkFreshness();});
+document.addEventListener('visibilitychange',()=>{refresh.checkFreshness();if(!document.hidden)poll(allKeys);});
+document.querySelector('#rank-tabs').onclick=e=>{if(!e.target.dataset.key)return;rankKey=e.target.dataset.key;document.querySelectorAll('#rank-tabs button').forEach(b=>b.classList.toggle('active',b===e.target));render(['rank']);};
+function closeDetail(){detailSource=null;document.querySelector('#detail').close();document.querySelector('#detail-body').replaceChildren();}
+const showDetail=(title,body,source)=>{detailSource=source;document.querySelector('#detail-title').textContent=title;document.querySelector('#detail-body').innerHTML=body;document.querySelector('#detail').showModal();};
+document.querySelector('#all-institutions').onclick=()=>showDetail(`${yearEl.value}年度机构工作量明细`,table(data.annual,metadata),'annual');
+document.querySelector('#more-insights').onclick=()=>showDetail('慢阻肺共病升级（患者内去重）',bars(data.population?.comorbidities,data.population?.total),'population');
+document.querySelector('#close-detail').onclick=closeDetail;
 document.querySelector('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{document.querySelector('#connection').textContent='浏览器未允许全屏，请使用F11';}};
 document.addEventListener('fullscreenchange',()=>document.querySelector('#fullscreen').textContent=document.fullscreenElement?'退出全屏':'全屏');
-const clock=()=>document.querySelector('#clock').textContent=new Date().toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});clock();setInterval(clock,1000);
+const clock=()=>{document.querySelector('#clock').textContent=new Date().toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});syncToken();refresh.checkFreshness();};clock();setInterval(clock,1000);
 try {const config=await fetch(mountedUrl('api/dashboard-config')).then(r=>r.json());if(/^https?:\/\//.test(config.managerUiUrl)||/^\/(?!\/)/.test(config.managerUiUrl))document.querySelector('.top-left a').href=config.managerUiUrl;document.querySelector('#legacy-entry').hidden=config.legacyAvailable!==true;}catch{}
-try {const [geo,config,streets]=await Promise.all([fetch(mountedUrl('map/whkfq.json')).then(r=>r.json()),fetch(mountedUrl('api/map-config')).then(r=>r.json()),fetch(mountedUrl('map/streets.json')).then(r=>r.json())]);metadata=config;map=createMap(document.querySelector('#map'),geo,metadata,selectOrg,streets,(name,rows)=>showDetail(`${name} · 机构看板`,data.annual?table(rows,metadata)+'<p class="footnote">机构按保留坐标匹配街道边界；本范围内无坐标的机构不纳入街道看板。</p>':'<div class="empty">管理端机构统计尚未连接</div>'));}catch{document.querySelector('#map').innerHTML='<div class="empty">地图资源暂不可用</div>';}
-refreshScope();
-setInterval(()=>{if(!document.hidden)for(const key of ['annual','followup','population','highrisk'])load(key);},60000);
-setInterval(()=>{if(!document.hidden)for(const key of ['monitoring','alerts'])load(key);},20000);
+try {const [geo,config,streets]=await Promise.all([fetch(mountedUrl('map/whkfq.json')).then(r=>r.json()),fetch(mountedUrl('api/map-config')).then(r=>r.json()),fetch(mountedUrl('map/streets.json')).then(r=>r.json())]);metadata=config;map=createMap(document.querySelector('#map'),geo,metadata,selectOrg,streets,(name,rows)=>showDetail(`${name} · 机构看板`,data.annual?table(rows,metadata)+'<p class="footnote">机构按保留坐标匹配街道边界；本范围内无坐标的机构不纳入街道看板。</p>':'<div class="empty">管理端机构统计尚未连接</div>','annual'));}catch{document.querySelector('#map').innerHTML='<div class="empty">地图资源暂不可用</div>';}
+render(allKeys);renderStatus();poll(allKeys);
+setInterval(()=>poll(ordinaryKeys),60000);
+setInterval(()=>poll(monitoringKeys),20000);

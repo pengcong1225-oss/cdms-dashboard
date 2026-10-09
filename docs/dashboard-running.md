@@ -23,16 +23,28 @@ Manager需要包含此次新增的DashboardStatsController/DashboardStatsService
 | 年度问卷 / ≥16分排行 | /api/v1/dashboard/screening | 复用筛查报表，事件人次 |
 | 年度肺功能 | 同上 | 原报表lungFuncExamCount，检查人次 |
 | 年度随访记录 | /api/v1/dashboard/follow-up | 原报表visitCount，随访人次 |
-| 高危 / 待确诊 | /api/v1/highrisk/stats | 当前高危人群人数，状态分别统计 |
-| 确诊在管与分布 | /api/v1/copd/stats | 当前活跃确诊患者；GOLD以已分级为分母 |
+| 高危 / 待确诊 | /api/v1/dashboard/high-risk | 当前高危人群人数，状态分别统计；轻量只读聚合 |
+| 确诊在管与分布 | /api/v1/dashboard/population | 当前活跃确诊患者；GOLD以已分级为分母；轻量只读聚合 |
 | 档案质控 | 同上 qualityPassed | patient.qc_status=1；非肺功能报告质控 |
 | COPD-SQ问卷风险 | 同上 riskDistribution | 最新问卷总分≥16为高风险；缺问卷单列未评估，非急性加重风险 |
 | 当前预警患者 | /api/v1/monitoring/stats | activeAlertPatientCount，人数 |
 | 活动预警条数 / 动态 | /api/v1/monitoring/alerts/popup | remainingCount条数，动态为近60分钟新发活动告警 |
-| 慢阻肺共病升级 | /api/v1/copd/stats 的 comorbidities | 人群特征与管理仅展示共病分布；不再提供月度趋势、管理分级页签 |
+| 慢阻肺共病升级 | /api/v1/dashboard/population 的 comorbidities | 人群特征与管理仅展示共病分布；不再提供月度趋势、管理分级页签 |
 
 年度接口分别沿用sys:report:screening:list和sys:report:followup:list，其他模块沿用各自权限。范围在Manager按OrgRule子树校验；地图只按字符串机构ID匹配地图配置，不以名字/JavaScript数值ID合并数据。
-普通60秒、监测20秒刷新；切范围取消旧请求并清除旧范围值；连接失败保留本范围最后成功数据且提示更新时间。401/403清除该模块旧数据；同域管理端登录账号/token变化时重置机构选项和全部统计。不同模块可独立失败。
+普通60秒、监测20秒轮询；切年份仅取消、清除和请求年度筛查/随访，人口、高危、监测与预警保留当前数据及在途请求。切机构范围取消所有旧请求并清除旧范围值。相同模块的在途请求复用同一Promise，每个模块独立epoch阻止取消后的旧响应覆盖新范围。401/403仅清除对应模块；同域管理端登录账号/token变化（含localStorage.clear）清除全部统计、机构选项和已打开明细，重新按新token读取。
+
+接口成功或失败只更新依赖该模块的区块和状态；监测、预警、排行页签均不重建地图。相同缓存数据只更新状态，不重绘图表；地图点位仅在年度数据或机构范围改变时更新。年度更新保留现有地图缩放、平移以及街道事件处理器。
+机构明细与街道看板跟随年度数据，共病“更多”跟随人口数据；其来源内容更新、401/403清除或超过最大陈旧时间时关闭并清空弹窗，避免继续展示过期快照。
+
+### 缓存时间与刷新状态
+年度两接口及人口/高危接口保持`Result.data`原来的数组或统计对象形状，增加可选`Result.meta`：
+```json
+{"dataUpdatedAt":"2026-10-09T00:00:00Z","stale":false,"refreshing":false,"refreshFailed":false,"freshUntil":"2026-10-09T00:03:00Z","staleUntil":"2026-10-09T00:13:00Z"}
+```
+`dataUpdatedAt`必须为后台聚合成功时间，命中缓存或客户端读取不改此值；`freshUntil`/`staleUntil`为UTC ISO时间。状态区明确区分“数据更新”“数据陈旧”“后台刷新中”“刷新失败”。前端每秒检查有效期，超过`staleUntil`后移除对应数据，不能无限保留旧值；请求失败保留仍在允许窗口内的本范围上次成功值。没有meta的实时监测/预警显示“收到… · 数据更新时间未提供”，避免把读取时间当成源数据时间。
+
+年度新鲜窗口180秒、最多额外陈旧600秒；人口/高危新鲜45秒、最多额外陈旧120秒。实际边界以前端收到的meta为准。新增两接口需Manager同步升级，Node代理仅将它们加入既有只读allowlist，生产`/dashboard/`路径与Authorization转发不变。
 
 ## 可重复构建
 assets/asset-manifest.json已经入源码，不再依赖被忽略的artifacts JSON。原13份发布资源仍保持哈希验证，新增页面从src/dashboard复制。assets/streets.json来自原站发布模块c046；可运行node scripts/extract-street-map.mjs重新提取七个原街道几何。
@@ -44,6 +56,8 @@ npm test
 npm run build
 node scripts/preview-dashboard-fixture.mjs
 ```
-最后一个命令只启动4319隔离测试页，明确标注“验收样例 · 非业务数据”，不会被生产服务导入，也不写数据库。用于检查完整布局、17机构引线、所有分布、机构与地图联动、明细、页签和街道看板；不作为业务数据交付。正式入口4318不加载该样例。
+最后一个命令只启动4319隔离测试页，明确标注“验收样例 · 非业务数据”，不会被生产服务导入，也不写数据库。样例使用新人口/高危路径，meta时间固定为样例服务启动时间，轮询不冒充数据更新。用于检查完整布局、17机构引线、所有分布、机构与地图联动、明细、排行页签和街道看板；不作为业务数据交付。正式入口4318不加载该样例。
+
+新增刷新测试覆盖年度与当前接口独立、请求去重、旧响应抛弃、token隔离、403清除、缓存真实时间和过期清理。真实app配合小型DOM边界替身执行，验证年度仅两请求、监测不触碰人口/排行/地图DOM、缓存命中不重绘、地图滚轮与拖动状态在刷新后保留。该测试不替代真实浏览器与生产数据联调。
 
 Java定向：backend目录运行mvn -q '-Dtest=DashboardStatsServiceTest,CopdServiceImplTest' clean test。全量mvn test在本机缺少JWT_SECRET等集成配置时会有Spring/数据库契约启动失败，不能替代联调验收。

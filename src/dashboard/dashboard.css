@@ -939,3 +939,4 @@ td:nth-child(n+3),th:nth-child(n+3) {
 #quality .footnote {
   margin-top:4px}
 }
+.metric-slot{display:contents}
