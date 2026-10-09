@@ -1,10 +1,10 @@
 import {cp,mkdir,readFile,writeFile} from 'node:fs/promises';
-import {createHash} from 'node:crypto';
+import {assetSha256} from './asset-integrity.mjs';
 const root=new URL('../',import.meta.url);
 const manifest=JSON.parse(await readFile(new URL('assets/asset-manifest.json',root),'utf8'));
 for(const asset of manifest){
  const bytes=await readFile(new URL('public/'+asset.path,root));
- if(createHash('sha256').update(bytes).digest('hex')!==asset.sha256)throw new Error(`Original asset changed: ${asset.path}`);
+ if(assetSha256(asset.path,bytes)!==asset.sha256)throw new Error(`Original asset changed: ${asset.path}`);
 }
 await mkdir(new URL('dist/',root),{recursive:true});
 await cp(new URL('public/',root),new URL('dist/',root),{recursive:true});

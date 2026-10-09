@@ -36,6 +36,7 @@ Manager需要包含此次新增的DashboardStatsController/DashboardStatsService
 
 ## 可重复构建
 assets/asset-manifest.json已经入源码，不再依赖被忽略的artifacts JSON。原13份发布资源仍保持哈希验证，新增页面从src/dashboard复制。assets/streets.json来自原站发布模块c046；可运行node scripts/extract-street-map.mjs重新提取七个原街道几何。
+文本资产的sha256按CRLF规范为LF后的原始字节校验，独立CR和其他内容变化仍会失败；字体、图片、图标保持严格原始字节校验。manifest当前13份规范哈希已与`git show HEAD:public/...`原始Git字节核对一致，避免Windows检出或归档换行差异阻止重建；bytes字段保留原采集长度，不用作跨平台文本校验。
 
 ## 测试与独立样例验收
 ```powershell
