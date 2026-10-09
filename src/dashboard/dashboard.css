@@ -942,3 +942,10 @@ td:nth-child(n+3),th:nth-child(n+3) {
 .metric-slot{display:contents}
 /* 暂时屏蔽模块及顶部统计状态文案，保留原有布局占位。 */
 .panel-state,.connection{visibility:hidden}
+.auth-gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(5,14,31,.8)}
+.auth-gate[hidden]{display:none}
+.auth-card{width:min(420px,calc(100vw - 40px));box-sizing:border-box;padding:30px;border:1px solid #397397;border-radius:8px;background:#13223d;box-shadow:0 10px 50px #0008;text-align:center}
+.auth-card h2{margin:0 0 18px;color:#bdeaff;font-size:22px}
+.auth-card p{color:#a7bbd5;line-height:1.8;font-size:15px;margin:0 0 24px}
+.auth-card .button,.auth-card button{display:inline-block;padding:10px 20px;margin:4px;border:1px solid #397397;border-radius:4px;background:#193952;color:#c5efff;text-decoration:none;cursor:pointer}
+.auth-card [hidden]{display:none}

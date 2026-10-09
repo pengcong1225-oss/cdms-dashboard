@@ -21,6 +21,12 @@ const fixtureMeta={dataUpdatedAt:capturedAt.toISOString(),stale:false,refreshing
 createServer(async(req,res)=>{
  try {
   const url=new URL(req.url,'http://localhost');
+  // The isolated sample has no Manager login. Supply a fake session only from this
+  // development server, without reading/writing real browser credentials.
+  if(url.pathname==='/dashboard/auth.mjs'){
+   res.setHeader('Content-Type','text/javascript');
+   return res.end("export function createAuthSession({onChange}){let started=false;return {sync(){if(!started){started=true;onChange({status:'ready',token:'fixture-only'});}},accept(){},recover(){return Promise.resolve();},retry(){},get token(){return 'fixture-only';},get status(){return 'ready';}};}");
+  }
   if(url.pathname==='/api/map-config'){res.setHeader('Content-Type','application/json');return res.end(JSON.stringify(metadata));}
   if(url.pathname==='/api/dashboard-config'){res.setHeader('Content-Type','application/json');return res.end(JSON.stringify({managerUiUrl:'/cdmsmanager/'}));}
   if(url.pathname.startsWith('/manager-api/')){

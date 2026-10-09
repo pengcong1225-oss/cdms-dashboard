@@ -4,11 +4,13 @@ import {createMap} from './map.mjs';
 import {dashboardUrl} from './paths.mjs';
 import {createRefreshController,annualKeys,ordinaryKeys,monitoringKeys,allKeys} from './refresh.mjs';
 import {createSectionRenderer} from './render.mjs';
+import {createAuthSession} from './auth.mjs';
 const mountedUrl=path=>dashboardUrl(path,document.baseURI);
 
 const panel=(id,title,note,body,actions='')=>`<section class="panel" id="${id}"><header><h2>${title}</h2><small>${note}</small>${actions}</header><div class="panel-body">${body}</div><footer class="panel-state"></footer></section>`;
 document.querySelector('#dashboard').innerHTML=`<header class="topbar"><div class="top-left"><a class="button" href="/cdmsmanager/">‹ 返回工作台</a><label>年度 <select id="year" aria-label="统计年度"></select></label></div><div class="brand"><h1>武汉经开区慢性呼吸疾病智慧医防管理平台</h1><p>CHRONIC RESPIRATORY DISEASE · INTELLIGENT PREVENTION & MANAGEMENT</p></div><div class="top-right"><select id="scope" aria-label="机构范围"><option value="">全部授权机构</option></select><time id="clock"></time><button id="fullscreen">全屏</button></div></header>
 <div id="connection" class="connection" role="status">正在连接管理端 · 年度事件与当前状态分别统计</div>
+<div id="auth-gate" class="auth-gate" hidden><section class="auth-card" aria-labelledby="auth-title"><h2 id="auth-title">管理端登录</h2><p id="auth-message" role="status"></p><a id="auth-login" class="button" href="/cdmsmanager/login" target="_blank" rel="noopener">登录管理端 ↗</a><button id="auth-retry" hidden>重试连接</button></section></div>
 <main class="layout"><aside class="left-column">
 ${panel('population','患者性别与年龄分布','当前确诊在管','<div id="gender"></div><div id="age" class="age-bars"></div>')}
 ${panel('institutions','机构工作量排行','年度事件',`<nav class="tabs" id="rank-tabs"><button class="active" data-key="sqScreeningCount">COPD-SQ</button><button data-key="lungFuncExamCount">肺功能</button><button data-key="score16Count">≥16分</button></nav><div id="ranking"></div><p class="footnote">按事件人次排序 · 点击机构联动地图</p>`,'<button class="text-button" id="all-institutions">明细 ↗</button>')}
@@ -25,7 +27,8 @@ ${panel('quality','档案质控情况','当前确诊在管','<div id="quality-ri
 
 const currentYear=new Date().getFullYear(),yearEl=document.querySelector('#year'),scopeEl=document.querySelector('#scope');
 for(let year=currentYear;year>=2024;year--)yearEl.add(new Option(`${year}年`,year));
-let metadata={},map,rankKey='sqScreeningCount',activeToken=localStorage.getItem('token'),detailSource=null;
+let metadata={},map,rankKey='sqScreeningCount',activeToken=null,detailSource=null;
+const auth=createAuthSession({storage:localStorage,refreshUrl:new URL('/cdmsmanagerapi/api/v1/auth/refresh',document.baseURI).href,onChange:applySession});
 const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/dashboard/population',highrisk:'/dashboard/high-risk',monitoring:'/monitoring/stats',alerts:'/monitoring/alerts/popup'};
 const refresh=createRefreshController({year:yearEl.value,token:activeToken,request:requestData,onChange:(key,event)=>{
  if(event.dataChanged&&detailSource===key)closeDetail();
@@ -113,7 +116,11 @@ async function requestData(key,context,signal) {
    const error=Error(status===401?'请先从管理端登录':status===403?'当前账号无此模块权限':result.message??result.msg??'统计请求失败');
    error.status=status;throw error;
   }
+ auth.accept(context.token);
  return {data:result.data,meta:result.meta};
+ }catch(error){
+  if(error.status===401)await auth.recover(context.token);
+  throw error;
  }finally{
   // Same-document localStorage writes do not emit storage events. Invalidate before accepting
   // a response if login changed while the request was in flight, even before the next clock tick.
@@ -126,23 +133,30 @@ function updateScopes(rows) {
  scopeEl.value=selected;
 }
 function refreshScope() {
- if(syncToken())return;
+ if(syncToken()||!activeToken)return;
  closeDetail();
  const keys=refresh.setContext({orgId:scopeEl.value,year:yearEl.value});
  render(['scope']);for(const key of keys)refresh.load(key);
 }
-function syncToken(){
- const token=localStorage.getItem('token');if(token===activeToken)return false;activeToken=token;
+function applySession({token,status}){
+ document.querySelector('#auth-gate').hidden=status==='ready';
+ document.querySelector('#auth-title').textContent=status==='refreshing'?'正在恢复登录':status==='unavailable'?'暂时无法连接管理端':'请先登录管理端';
+ document.querySelector('#auth-message').textContent=status==='refreshing'?'正在验证管理端登录状态，请稍候。':status==='unavailable'?'登录验证未完成，请检查网络后重试，或重新登录管理端。':'当前网址尚未登录或登录已失效。请在新标签页完成管理端登录，再回到此页，数据将自动加载。';
+ document.querySelector('#auth-login').hidden=status==='refreshing';
+ document.querySelector('#auth-retry').hidden=status!=='unavailable';
+ if(token===activeToken)return;activeToken=token;
  scopeEl.replaceChildren(new Option('全部授权机构',''));closeDetail();
- refresh.setContext({token,orgId:'',year:yearEl.value});render(['scope']);for(const key of allKeys)refresh.load(key);return true;
+ refresh.setContext({token,orgId:'',year:yearEl.value});render(['scope']);if(token)for(const key of allKeys)refresh.load(key);
 }
-function poll(keys){if(syncToken()||document.hidden)return;for(const key of keys)refresh.load(key);}
+function syncToken(){const before=activeToken;auth.sync();return before!==activeToken;}
+function poll(keys){if(syncToken()||!activeToken||document.hidden)return;for(const key of keys)refresh.load(key);}
 function selectOrg(id) {if([...scopeEl.options].some(o=>o.value===String(id))){scopeEl.value=String(id);refreshScope();}}
 document.addEventListener('click',e=>{const node=e.target.closest('[data-org]');if(node){selectOrg(node.dataset.org);closeDetail();}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr[data-org]'))selectOrg(e.target.dataset.org);});
-yearEl.onchange=()=>{if(syncToken())return;closeDetail();for(const key of refresh.setContext({year:yearEl.value}))refresh.load(key);};
+yearEl.onchange=()=>{if(syncToken()||!activeToken)return;closeDetail();for(const key of refresh.setContext({year:yearEl.value}))refresh.load(key);};
 scopeEl.onchange=refreshScope;document.querySelector('#reset-scope').onclick=()=>{scopeEl.value='';refreshScope();};
-window.addEventListener('storage',event=>{if(event.key==='token'||event.key===null)syncToken();});
+window.addEventListener('storage',event=>{if(event.key==='token'||event.key==='refreshToken'||event.key===null)syncToken();});
+document.querySelector('#auth-retry').onclick=()=>auth.retry();
 window.addEventListener('focus',()=>{syncToken();refresh.checkFreshness();});
 document.addEventListener('visibilitychange',()=>{refresh.checkFreshness();if(!document.hidden)poll(allKeys);});
 document.querySelector('#rank-tabs').onclick=e=>{if(!e.target.dataset.key)return;rankKey=e.target.dataset.key;document.querySelectorAll('#rank-tabs button').forEach(b=>b.classList.toggle('active',b===e.target));render(['rank']);};
@@ -158,7 +172,7 @@ render(allKeys);renderStatus();poll(allKeys);
 setInterval(()=>poll(ordinaryKeys),60000);
 setInterval(()=>poll(monitoringKeys),20000);
 // Collect completed background refreshes promptly instead of waiting a full minute.
-setInterval(()=>{if(!syncToken()&&!document.hidden)void refresh.pollRefreshing();},3000);
+setInterval(()=>{if(!syncToken()&&activeToken&&!document.hidden)void refresh.pollRefreshing();},3000);
 // Statistics do not depend on navigation configuration or map downloads.
 void (async()=>{
  try {const config=await fetch(mountedUrl('api/dashboard-config')).then(r=>r.json());if(/^https?:\/\//.test(config.managerUiUrl)||/^\/(?!\/)/.test(config.managerUiUrl))document.querySelector('.top-left a').href=config.managerUiUrl;document.querySelector('#legacy-entry').hidden=config.legacyAvailable!==true;}catch{}

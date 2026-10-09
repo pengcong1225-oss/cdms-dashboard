@@ -22,7 +22,7 @@ export function dashboardDom() {
  const install=()=>{
   const originals=new Map(['document','window','localStorage','Option','fetch','setInterval'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
   const storage=new Map([['token','user-a']]);
-  Object.assign(globalThis,{document,window,localStorage:{getItem:key=>storage.get(key)??null},Option:class{constructor(text,value){this.textContent=text;this.value=String(value);}},setInterval:(handler,ms)=>{timers.push({handler,ms});return timers.length;}});
+  Object.assign(globalThis,{document,window,localStorage:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},Option:class{constructor(text,value){this.textContent=text;this.value=String(value);}},setInterval:(handler,ms)=>{timers.push({handler,ms});return timers.length;}});
   return {storage,restore(){for(const [key,descriptor] of originals)if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}};
  };
  return {nodes,node,document,windowHandlers,timers,install};
