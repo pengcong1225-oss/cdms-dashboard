@@ -88,7 +88,7 @@ add('ranking',['annual','scope','rank'],()=>{
 });
 add('wearable',['monitoring'],()=>{
  const m=data.monitoring;
- document.querySelector('#wearable').innerHTML=[['在管监测',m?.managedPatientCount],['已绑定设备',m?.boundPatientCount],['当前预警',m?.activeAlertPatientCount],['设备离线',m?.offlinePatientCount]].map(([label,value])=>`<div><span>${label}</span><b>${fmt(value)}<small>人</small></b></div>`).join('');
+ document.querySelector('#wearable').innerHTML=[['在管监测',m?.managedPatientCount],['已绑定设备',m?.boundPatientCount],['当前预警',m?.activeAlertPatientCount],['设备离线',m?.offlinePatientCount]].map(([label,value])=>`<div><span>${label}</span><b><span class="mini-value">${fmt(value)}</span><small>人</small></b></div>`).join('');
 });
 add('alerts',['alerts'],()=>document.querySelector('#alerts').innerHTML=data.alerts?renderAlertRecords(data.alerts.records):'<div class="empty">等待管理端告警数据</div>');
 document.querySelector('#overview-list').innerHTML=Array.from({length:7},(_,i)=>`<div id="overview-${i}" class="overview-row"></div>`).join('');
