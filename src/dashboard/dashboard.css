@@ -940,6 +940,25 @@ td:nth-child(n+3),th:nth-child(n+3) {
   margin-top:4px}
 }
 .metric-slot{display:contents}
+#map{background:linear-gradient(180deg,#101f4820,#06143055),url('../static/img/home_bg.e95d7ca4.png') center 48%/cover no-repeat;border-radius:3px}
+#map .district-outline{opacity:.88}
+#map .street-region{fill:transparent;stroke:#83c5dd88;stroke-width:.7}
+#map .street-region:hover{fill:#75c6e322;stroke:#b3e6ff}
+#map .street-label{fill:#d0e6f3;font-size:21px;font-weight:500;paint-order:stroke;stroke:#20466c77;stroke-width:3px;pointer-events:none}
+#map .institution .halo{fill:#123b59a6;stroke:#4aa5cf;stroke-width:1.2}
+#map .institution .marker-ring{fill:#18446877;stroke:#61a4c266;stroke-width:1}
+#map .institution .medical-symbol{fill:#d54342;stroke:none}
+#map .institution.hospital .medical-symbol{fill:#ead65d}
+#map .institution.selected .halo{stroke:#ffe57a;stroke-width:2}
+#map .institution text{fill:#d6e8f4;font-size:18px;font-weight:500}
+#map .institution .leader{stroke:#a0cbe1;stroke-width:1.3;stroke-dasharray:6 5}
+#map .map-tooltip{left:auto;right:16px;top:43%;min-width:170px;max-width:260px;background:#0c2145dd;border-color:#467caa66}
+.map-street-legend{position:absolute;right:8px;bottom:8px;display:grid;grid-template-rows:repeat(4,auto);grid-auto-flow:column;column-gap:16px;row-gap:5px;padding:9px 11px;background:#0b1c49b8;border:1px solid #22457555;max-width:calc(100% - 16px)}
+.map-street-legend:empty{display:none}
+.map-street-legend button{display:grid;grid-template-columns:minmax(0,1fr) 9px 15px;align-items:center;gap:5px;padding:1px 0;background:none;border:0;white-space:nowrap;font-size:10px;color:#d0e4f5}
+.map-street-legend i{font-style:normal;color:#e34f44}
+.map-street-legend b{color:#67dcff;text-align:right}
+@media(max-width:1450px){.map-street-legend{column-gap:10px;padding:6px 8px;row-gap:3px}.map-street-legend button{font-size:9px}}
 #monitoring{container-type:inline-size;min-height:min-content;flex:1.1 0 270px}
 #monitoring .panel-body{display:flex;flex-direction:column;gap:8px;min-height:204px;overflow:auto}
 #monitoring .panel-state{display:none}
