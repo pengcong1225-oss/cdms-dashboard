@@ -25,8 +25,8 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
  }).join('');
  const clip=document.createElementNS('http://www.w3.org/2000/svg','clipPath');clip.id='district-clip';clip.innerHTML=`<path d="${path}"/>`;svg.querySelector('defs').append(clip);
  streetLayer.innerHTML=`<g clip-path="url(#district-clip)">${streetLayer.innerHTML}</g>`+streetLabels.map(b=>`<text class="street-label" x="${b.x}" y="${b.y}" text-anchor="middle">${esc(b.name)}</text>`).join('');scene.insertBefore(streetLayer,points);
- let zoom=1,dx=0,dy=0,drag=null,moved=false,visibleRows=[],selected='',hoverVersion=0;
- const hideTooltip=()=>{hoverVersion++;tooltip.hidden=true;};
+ let zoom=1,dx=0,dy=0,drag=null,moved=false,visibleRows=[],selected='',hoverVersion=0,hoverTimer;
+ const hideTooltip=()=>{hoverVersion++;clearTimeout(hoverTimer);tooltip.hidden=true;};
  const legend=container.querySelector('.map-street-legend');
  const streetRows=feature=>visibleRows.filter(row=>{const item=metadata[String(row.orgId)];return item&&containsPoint(feature.geometry,[item.lng,item.lat]);});
  const transform=()=>scene.setAttribute('transform',`translate(${dx} ${dy}) translate(500 290) scale(${zoom}) translate(-500 -290)`);
@@ -71,6 +71,7 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
   }).join('');
  }
  const show=target=>{
+  clearTimeout(hoverTimer);
   const version=++hoverVersion,node=target.closest('[data-org]');if(!node){
    tooltip.classList.toggle('institution-tooltip',false);
    const street=target.closest('[data-street]'),feature=(streets?.features??[]).find(f=>f.properties.name===street?.dataset.street);
@@ -83,7 +84,18 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
   const content=stats=>`<div class="institution-tooltip-heading"><strong>${esc(name)}</strong><span>人群情况统计</span></div><div class="institution-tooltip-stats">${[['COPD-SQ筛查问卷',row.sqScreeningCount,'人次'],['高危人群',stats?.highRisk,'人'],['慢阻肺人群管理',stats?.managed,'人']].map(([label,value,unit])=>`<p><span>${label}</span><b>${fmt(value)}</b><small>${unit}</small></p>`).join('')}</div>`;
   tooltip.classList.toggle('institution-tooltip',true);
   tooltip.innerHTML=content(null);tooltip.hidden=false;
-  if(loadInstitutionStats)void Promise.resolve(loadInstitutionStats(node.dataset.org)).then(stats=>{if(version===hoverVersion&&!tooltip.hidden)tooltip.innerHTML=content(stats);}).catch(()=>{});
+  const applyStats=stats=>{
+   if(version!==hoverVersion||tooltip.hidden)return;
+   const expiresAt=stats?.expiresAt;
+   if(Number.isFinite(expiresAt)&&expiresAt<=Date.now()){tooltip.innerHTML=content(null);return;}
+   tooltip.innerHTML=content(stats);
+   if(Number.isFinite(expiresAt))hoverTimer=setTimeout(()=>{
+    if(version!==hoverVersion||tooltip.hidden)return;
+    tooltip.innerHTML=content(null);loadStats();
+   },expiresAt-Date.now());
+  };
+  const loadStats=()=>{if(loadInstitutionStats)void Promise.resolve(loadInstitutionStats(node.dataset.org)).then(applyStats).catch(()=>{});};
+  loadStats();
  };
  svg.addEventListener('pointerover',e=>show(e.target));svg.addEventListener('focusin',e=>show(e.target));svg.addEventListener('pointerleave',hideTooltip);
  svg.addEventListener('focusout',e=>{if(!container.contains(e.relatedTarget))hideTooltip();});
@@ -104,7 +116,7 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
   zoom=next;hideTooltip();transform();
  },{passive:false});
  svg.addEventListener('pointerdown',e=>{moved=false;if(e.target.closest('[data-org]'))return;drag={x:e.clientX,y:e.clientY,dx,dy};});
- svg.addEventListener('pointermove',e=>{if(drag&&e.buttons){const {scale}=viewport();dx=drag.dx+(e.clientX-drag.x)/scale;dy=drag.dy+(e.clientY-drag.y)/scale;if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>4){moved=true;tooltip.hidden=true;svg.setPointerCapture(e.pointerId);}transform();}});
+ svg.addEventListener('pointermove',e=>{if(drag&&e.buttons){const {scale}=viewport();dx=drag.dx+(e.clientX-drag.x)/scale;dy=drag.dy+(e.clientY-drag.y)/scale;if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>4){moved=true;hideTooltip();svg.setPointerCapture(e.pointerId);}transform();}});
  svg.addEventListener('pointerup',()=>{drag=null;});
  if(typeof ResizeObserver==='function')new ResizeObserver(()=>update(visibleRows,selected)).observe(container);
  return {update,hideTooltip};

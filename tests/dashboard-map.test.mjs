@@ -43,6 +43,19 @@ test('hospital long labels clear all medical markers even in a narrow map',()=>{
  }finally{installed.restore();}
 });
 
+test('a continuously visible institution tooltip discards expired totals and reloads',async()=>{
+ const dom=dashboardDom(),installed=dom.install();let loads=0;
+ try{
+  const geo={features:[{geometry:{type:'Polygon',coordinates:[[[0,0],[2,0],[2,2],[0,2],[0,0]]]}}]};
+  const map=createMap(dom.node('#map'),geo,{a:{name:'机构',lng:1,lat:1}},()=>{},null,null,async()=>++loads===1?{highRisk:23,managed:4,expiresAt:Date.now()+40}:{highRisk:null,managed:null,expiresAt:null});
+  map.update([{orgId:'a',sqScreeningCount:100}]);
+  dom.node('#map svg').handlers.pointerover({target:{closest:selector=>selector==='[data-org]'?{dataset:{org:'a'}}:null}});
+  await new Promise(resolve=>setImmediate(resolve));assert.match(dom.node('#map .map-tooltip').innerHTML,/>23</);
+  await new Promise(resolve=>setTimeout(resolve,100));
+  assert.equal(loads,2);assert.doesNotMatch(dom.node('#map .map-tooltip').innerHTML,/>23</);map.hideTooltip();
+ }finally{installed.restore();}
+});
+
 test('scaled map labels avoid the fixed street legend',()=>{
  const dom=dashboardDom(),installed=dom.install();
  try{

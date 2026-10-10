@@ -13,7 +13,10 @@ export function createInstitutionStats({request,now=Date.now,ttlMs=60000,timeout
     const result=await request(key,{orgId,token},controller.signal);
     const raw=result?.data?.total,value=raw==null||raw===''?null:Number(raw);
     if(version!==generation||controller.signal.aborted||!Number.isSafeInteger(value)||value<0)return null;
-    entry.value=value;entry.expiresAt=now()+ttlMs;return value;
+    const receivedAt=now(),sourceExpiry=Date.parse(result?.meta?.staleUntil);
+    const expiresAt=Math.min(receivedAt+Math.min(ttlMs,result?.meta?.refreshing?3000:ttlMs),Number.isFinite(sourceExpiry)?sourceExpiry:Infinity);
+    if(expiresAt<=receivedAt)return null;
+    entry.value=value;entry.expiresAt=expiresAt;return value;
    }catch{return null;}
    finally{
     clearTimeout(entry.timer);entry.promise=null;
@@ -23,9 +26,10 @@ export function createInstitutionStats({request,now=Date.now,ttlMs=60000,timeout
   return entry.promise;
  }
  async function load(orgId,token){
-  if(!orgId||!token)return {highRisk:null,managed:null};
+  if(!orgId||!token)return {highRisk:null,managed:null,expiresAt:null};
   const [highRisk,managed]=await Promise.all([get('highrisk',String(orgId),token),get('population',String(orgId),token)]);
-  return {highRisk,managed};
+  const expiries=[['highrisk',highRisk],['population',managed]].filter(([,value])=>value!=null).map(([key])=>cache.get(JSON.stringify([token,String(orgId),key]))?.expiresAt).filter(Number.isFinite);
+  return {highRisk,managed,expiresAt:expiries.length?Math.min(...expiries):null};
  }
  function reset(){generation++;for(const entry of cache.values()){clearTimeout(entry.timer);entry.controller.abort();}cache.clear();}
  return {load,reset};
