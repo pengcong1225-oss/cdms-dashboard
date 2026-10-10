@@ -60,6 +60,15 @@ test('real dashboard app limits yearly refresh, preserves map navigation and iso
   await import(`../src/dashboard/app.mjs?test=${Date.now()}`);await drain();
   const node=dom.node,points=node('#map #map-points'),scene=node('#map #map-scene'),svg=node('#map svg');
   assert.match(node('#gender').innerHTML,/确诊在管/);assert.match(points.innerHTML,new RegExp(org));
+  const globalMetric=node('#metric-1').innerHTML,globalWrites=node('#gender').writes;
+  calls.length=0;
+  svg.handlers.pointerover({target:{closest:selector=>selector==='[data-org]'?{dataset:{org}}:null}});await drain();
+  assert.equal(calls.length,2,'hover loads two current institution statistics only');
+  assert.ok(calls.every(call=>call.query.get('orgId')===org&&!call.query.has('year')&&call.auth==='Bearer user-a'));
+  assert.equal(node('#scope').value,'');assert.equal(node('#metric-1').innerHTML,globalMetric);assert.equal(node('#gender').writes,globalWrites);
+  assert.match(node('#map .map-tooltip').innerHTML,/高危人群[\s\S]*?>9</);
+  assert.match(node('#map .map-tooltip').innerHTML,/慢阻肺人群管理[\s\S]*?>7</);
+  svg.handlers.pointerleave();calls.length=0;
   svg.handlers.wheel({preventDefault(){},deltaY:-1});
   svg.handlers.pointerdown({target:{closest:()=>null},clientX:0,clientY:0});
   svg.handlers.pointermove({buttons:1,clientX:30,clientY:20,pointerId:1});svg.handlers.pointerup();

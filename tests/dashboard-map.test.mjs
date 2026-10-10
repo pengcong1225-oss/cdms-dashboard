@@ -3,6 +3,46 @@ import assert from 'node:assert/strict';
 import {createMap} from '../src/dashboard/map.mjs';
 import {dashboardDom} from './dashboard-dom.mjs';
 
+test('institution hover contains only the requested three statistics and ignores late responses after leaving',async()=>{
+ const dom=dashboardDom(),installed=dom.install();
+ let release;const pending=new Promise(resolve=>release=resolve),requested=[];
+ try{
+  const geo={features:[{geometry:{type:'Polygon',coordinates:[[[0,0],[2,0],[2,2],[0,2],[0,0]]]}}]};
+  const map=createMap(dom.node('#map'),geo,{a:{name:'武汉亚心<医院>',shortName:'亚心',lng:1,lat:1}},()=>{},null,null,id=>{requested.push(id);return pending;});
+  map.update([{orgId:'a',sqScreeningCount:1557,score16Count:100,lungFuncExamCount:50}]);
+  const svg=dom.node('#map svg'),tooltip=dom.node('#map .map-tooltip');
+  const target={closest:selector=>selector==='[data-org]'?{dataset:{org:'a'}}:null};
+  svg.handlers.pointerover({target});
+  assert.match(tooltip.innerHTML,/COPD-SQ筛查问卷/);assert.match(tooltip.innerHTML,/高危人群/);assert.match(tooltip.innerHTML,/慢阻肺人群管理/);
+  assert.match(tooltip.innerHTML,/1,557/);assert.match(tooltip.innerHTML,/武汉亚心&lt;医院&gt;/);
+  assert.doesNotMatch(tooltip.innerHTML,/肺功能检查|≥16分问卷/);
+  assert.deepEqual(requested,['a']);
+  svg.handlers.pointerleave();release({highRisk:23,managed:4});await pending;await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(tooltip.hidden,true);assert.doesNotMatch(tooltip.innerHTML,/>23</);
+  svg.handlers.pointerover({target});await new Promise(resolve=>setImmediate(resolve));
+  assert.match(tooltip.innerHTML,/>23</);assert.match(tooltip.innerHTML,/>4</);
+  map.hideTooltip();assert.equal(tooltip.hidden,true);
+ }finally{installed.restore();}
+});
+
+test('hospital long labels clear all medical markers even in a narrow map',()=>{
+ const dom=dashboardDom(),installed=dom.install();
+ try{
+  const geo={features:[{geometry:{type:'Polygon',coordinates:[[[0,0],[2,0],[2,2],[0,2],[0,0]]]}}]};
+  const metadata={a:{name:'武汉亚心总医院',shortName:'亚心',lng:1.7,lat:1.7},b:{name:'新民',lng:1.6,lat:1.8},c:{name:'沌口',lng:1.72,lat:1.45}};
+  const map=createMap(dom.node('#map'),geo,metadata,()=>{});
+  map.update(Object.keys(metadata).map(orgId=>({orgId})));
+  const html=dom.node('#map #map-points').innerHTML;
+  const star=html.match(/data-org="a"[\s\S]*?<text x="([\d.-]+)" y="([\d.-]+)"/);
+  const lx=Number(star[1]),ly=Number(star[2]),width=Array.from('亚心（经开区慢呼中心）').length*18;
+  for(const item of Object.values(metadata)){
+   const x=24+item.lng*476,y=24+(2-item.lat)*266;
+   const overlaps=lx<x+20&&lx+width>x-20&&ly-18<y+20&&ly>y-20;
+   assert.equal(overlaps,false,'hospital caption must not overlap a star or plus marker');
+  }
+ }finally{installed.restore();}
+});
+
 test('scaled map labels avoid the fixed street legend',()=>{
  const dom=dashboardDom(),installed=dom.install();
  try{
@@ -13,7 +53,7 @@ test('scaled map labels avoid the fixed street legend',()=>{
   map.update([{orgId:'a'}]);
   const label=dom.node('#map #map-points').innerHTML.match(/<text x="([\d.]+)" y="([\d.]+)"/);
   assert.ok(label);
-  assert.ok(Number(label[2])<=472,'label baseline must stay above the legend at SVG y=480');
+  assert.ok(Number(label[1])+Array.from('红十字会').length*18<=772||Number(label[2])<=472,'label must clear the legend on either axis');
   const svg=dom.node('#map svg'),scene=dom.node('#map #map-scene');
   svg.handlers.wheel({preventDefault(){},deltaY:-1,clientX:385,clientY:237.5});
   const offsets=()=>scene.attributes.transform.match(/^translate\(([-\d.]+) ([-\d.]+)\)/).slice(1).map(Number);

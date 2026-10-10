@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createInstitutionStats} from '../src/dashboard/institution-stats.mjs';
+
+test('institution totals are lazy, scoped, deduplicated and expire without reusing another account',async()=>{
+ let time=0;const calls=[];
+ const stats=createInstitutionStats({now:()=>time,request:async(key,context)=>{calls.push({key,...context});return {data:{total:key==='highrisk'?9:3}};}});
+ assert.deepEqual(calls,[]);
+ assert.deepEqual(await stats.load('a',null),{highRisk:null,managed:null});
+ const first=stats.load('a','token-a'),same=stats.load('a','token-a');
+ assert.deepEqual(await first,{highRisk:9,managed:3});await same;
+ assert.equal(calls.length,2);assert.ok(calls.every(c=>c.orgId==='a'&&c.token==='token-a'));
+ await stats.load('a','token-a');assert.equal(calls.length,2);
+ await stats.load('b','token-a');assert.equal(calls.length,4);
+ time=60001;await stats.load('a','token-a');assert.equal(calls.length,6);
+ stats.reset();await stats.load('a','token-b');assert.equal(calls.length,8);
+ assert.ok(calls.slice(-2).every(c=>c.token==='token-b'));
+});
+
+test('partial failure stays unknown, retries and cannot expose a late result after session reset',async()=>{
+ let rejectManaged=true,release;const signals=[];
+ const stats=createInstitutionStats({request:async(key,context,signal)=>{
+  signals.push(signal);
+  if(key==='population'&&rejectManaged)throw Object.assign(Error('denied'),{status:403});
+  return {data:{total:key==='highrisk'?0:2}};
+ }});
+ assert.deepEqual(await stats.load('a','token'),{highRisk:0,managed:null});
+ rejectManaged=false;assert.deepEqual(await stats.load('a','token'),{highRisk:0,managed:2});
+ const gate=new Promise(resolve=>release=resolve);
+ const late=createInstitutionStats({request:async(key,context,signal)=>{signals.push(signal);await gate;return {data:{total:999}};}});
+ const pending=late.load('slow','old');late.reset();
+ assert.ok(signals.slice(-2).every(signal=>signal.aborted));
+ release();assert.deepEqual(await pending,{highRisk:null,managed:null});
+});

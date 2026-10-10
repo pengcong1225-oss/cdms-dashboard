@@ -6,6 +6,7 @@ import {createRefreshController,annualKeys,ordinaryKeys,monitoringKeys,allKeys} 
 import {createSectionRenderer} from './render.mjs';
 import {createAuthSession} from './auth.mjs';
 import {createAlertCarousel,renderAlertRecords} from './alert-carousel.mjs';
+import {createInstitutionStats} from './institution-stats.mjs';
 import {createPresentation} from './presentation.mjs';
 const mountedUrl=path=>dashboardUrl(path,document.baseURI);
 
@@ -32,6 +33,7 @@ const currentYear=new Date().getFullYear(),yearEl=document.querySelector('#year'
 for(let year=currentYear;year>=2024;year--)yearEl.add(new Option(`${year}年`,year));
 let metadata={},map,rankKey='sqScreeningCount',activeToken=null,detailSource=null;
 const carousel=createAlertCarousel();
+const institutionStats=createInstitutionStats({request:requestData});
 const auth=createAuthSession({storage:localStorage,refreshUrl:new URL('/cdmsmanagerapi/api/v1/auth/refresh',document.baseURI).href,onChange:applySession});
 const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/dashboard/population',highrisk:'/dashboard/high-risk',monitoring:'/monitoring/stats',alerts:'/dashboard/alerts'};
 const refresh=createRefreshController({year:yearEl.value,token:activeToken,request:requestData,onChange:(key,event)=>{
@@ -167,6 +169,7 @@ function applySession({token,status}){
  document.querySelector('#auth-login').hidden=status==='refreshing';
  document.querySelector('#auth-retry').hidden=status!=='unavailable';
  if(token===activeToken)return;activeToken=token;
+ institutionStats.reset();map?.hideTooltip();
  scopeEl.replaceChildren(new Option('全部授权机构',''));closeDetail();
  refresh.setContext({token,orgId:'',year:yearEl.value});render(['scope']);if(token)for(const key of allKeys)refresh.load(key);
 }
@@ -200,5 +203,5 @@ void (async()=>{
  try {const config=await fetch(mountedUrl('api/dashboard-config')).then(r=>r.json());if(/^https?:\/\//.test(config.managerUiUrl)||/^\/(?!\/)/.test(config.managerUiUrl))document.querySelector('.top-left a').href=config.managerUiUrl;document.querySelector('#legacy-entry').hidden=config.legacyAvailable!==true;}catch{}
 })();
 void (async()=>{
- try {const [geo,config,streets]=await Promise.all([fetch(mountedUrl('map/whkfq.json')).then(r=>r.json()),fetch(mountedUrl('api/map-config')).then(r=>r.json()),fetch(mountedUrl('map/streets.json')).then(r=>r.json())]);metadata=config;map=createMap(document.querySelector('#map'),geo,metadata,selectOrg,streets,(name,rows)=>showDetail(`${name} · 机构看板`,data.annual?table(rows,metadata)+'<p class="footnote">机构按保留坐标匹配街道边界；本范围内无坐标的机构不纳入街道看板。</p>':'<div class="empty">管理端机构统计尚未连接</div>','annual'));render(['scope']);}catch{document.querySelector('#map').innerHTML='<div class="empty">地图资源暂不可用</div>';}
+ try {const [geo,config,streets]=await Promise.all([fetch(mountedUrl('map/whkfq.json')).then(r=>r.json()),fetch(mountedUrl('api/map-config')).then(r=>r.json()),fetch(mountedUrl('map/streets.json')).then(r=>r.json())]);metadata=config;map=createMap(document.querySelector('#map'),geo,metadata,selectOrg,streets,(name,rows)=>showDetail(`${name} · 机构看板`,data.annual?table(rows,metadata)+'<p class="footnote">机构按保留坐标匹配街道边界；本范围内无坐标的机构不纳入街道看板。</p>':'<div class="empty">管理端机构统计尚未连接</div>','annual'),id=>{syncToken();return institutionStats.load(id,activeToken);});render(['scope']);}catch{document.querySelector('#map').innerHTML='<div class="empty">地图资源暂不可用</div>';}
 })();
