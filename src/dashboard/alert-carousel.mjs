@@ -25,7 +25,7 @@ export function createAlertCarousel({now=Date.now,intervalMs=6000}={}) {
 const labels={SPO2:'血氧',SPO2_LOW:'血氧低',SPO2_WARNING:'血氧低',HEART_RATE:'心率',HEART_RATE_ABNORMAL:'心率异常',HEART_RATE_WARNING:'心率异常',STEPS:'步数',STEP_COUNT:'步数',STEPS_LOW:'步数不足',SLEEP:'睡眠',SLEEP_DURATION:'睡眠',SLEEP_LOW:'睡眠不足',MULTIPLE_WARNING:'综合预警'};
 export function renderAlertRecords(records) {
  if(!records?.length)return '<div class="empty">当前暂无未处理告警</div>';
- return records.slice(0,3).map(row=>{
+ return records.slice(0,5).map(row=>{
   const name=String(row.patientName??'未知姓名');
   const reason=String(row.reason??'').trim()||`${labels[row.alertType]??`告警（${row.alertType??'未知类型'}）`} ${fmt(row.alertValue)}${row.alertUnit??''}`;
   const occurredAt=String(row.occurredAt??'').replace('T',' ');

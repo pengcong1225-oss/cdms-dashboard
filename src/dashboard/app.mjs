@@ -127,7 +127,7 @@ async function requestData(key,context,signal) {
  try {
  const params=new URLSearchParams();if(context.orgId)params.set('orgId',context.orgId);
  if(annualKeys.includes(key))params.set('year',context.year);
- if(key==='alerts'){params.set('page',String(context.alertPage));params.set('size','3');}
+ if(key==='alerts'){params.set('page',String(context.alertPage));params.set('size','5');}
  const response=await fetch(mountedUrl(`manager-api/api/v1${endpoints[key]}?${params}`),{headers:context.token?{Authorization:`Bearer ${context.token}`}:{},signal});
  let result;
  try{

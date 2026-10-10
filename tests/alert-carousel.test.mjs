@@ -37,5 +37,5 @@ test('alert renderer preserves and escapes original names, prefers reason and fo
   assert.match(renderAlertRecords([{patientName:'李明',alertType:type,alertValue:88,alertUnit:'%',occurredAt:'2024-01-01 00:00:00'}]),new RegExp(`${label}.*88%`));
  }
  assert.match(renderAlertRecords([]),/当前暂无未处理告警/);
- assert.equal((renderAlertRecords(Array.from({length:5},(_,i)=>({patientName:`姓名${i}`,reason:'具体告警'}))).match(/role="listitem"/g)??[]).length,3);
+ assert.equal((renderAlertRecords(Array.from({length:6},(_,i)=>({patientName:`姓名${i}`,reason:'具体告警'}))).match(/role="listitem"/g)??[]).length,5);
 });

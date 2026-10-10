@@ -12,10 +12,10 @@ test('dashboard cycles current alert pages, pauses interaction and keeps the pre
   if(url.pathname.endsWith('/api/dashboard-config'))return Response.json({managerUiUrl:'/cdmsmanager/'});
   if(url.pathname.includes('/map/')||url.pathname.endsWith('/api/map-config'))throw Error('optional map unavailable in this alert test');
   if(url.pathname.endsWith('/dashboard/alerts')){
-   const current=total?Math.min(Number(url.searchParams.get('page')),Math.ceil(total/3)):1;
+   const current=total?Math.min(Number(url.searchParams.get('page')),Math.ceil(total/5)):1;
    if(waiting){const work=waiting;waiting=null;await work;}
    if(status!==200)return Response.json({code:status,msg:'denied'},{status});
-   return Response.json({code:200,data:{records:records.slice((current-1)*3,Math.min(current*3,total)),total,current,size:3,pages:Math.ceil(total/3)}});
+   return Response.json({code:200,data:{records:records.slice((current-1)*5,Math.min(current*5,total)),total,current,size:5,pages:Math.ceil(total/5)}});
   }
   return Response.json({code:200,data:url.pathname.endsWith('/screening')?[]:url.pathname.endsWith('/follow-up')?[]:url.pathname.endsWith('/population')?{total:7,genderDistribution:{男:7},comorbidities:{}}:{}});
  };
@@ -24,7 +24,7 @@ test('dashboard cycles current alert pages, pauses interaction and keeps the pre
   await import(`../src/dashboard/app.mjs?alerttest=${realNow()}`);await drain();
   const node=dom.node,clock=dom.timers.find(timer=>timer.ms===1000).handler,area=node('#alert-carousel');
   assert.equal(alertCalls().length,1);assert.equal(alertCalls()[0].url.pathname,'/dashboard/manager-api/api/v1/dashboard/alerts');
-  assert.equal(alertCalls()[0].url.searchParams.get('page'),'1');assert.equal(alertCalls()[0].url.searchParams.get('size'),'3');assert.equal(alertCalls()[0].url.searchParams.has('minutes'),false);
+  assert.equal(alertCalls()[0].url.searchParams.get('page'),'1');assert.equal(alertCalls()[0].url.searchParams.get('size'),'5');assert.equal(alertCalls()[0].url.searchParams.has('minutes'),false);
   assert.match(node('#alerts').innerHTML,/王1&lt;明&gt;/);assert.match(node('#alerts').innerHTML,/血氧低于&lt;阈值&gt;/);assert.doesNotMatch(node('#alerts').innerHTML,/王1\*\*/);
   assert.match(node('#metric-5').innerHTML,/13/);
   const populationWrites=node('#gender').writes,rankingWrites=node('#ranking').writes;
@@ -32,12 +32,12 @@ test('dashboard cycles current alert pages, pauses interaction and keeps the pre
   assert.equal(alertCalls().length,1);assert.equal(alertCalls()[0].url.searchParams.get('page'),'2');assert.match(node('#alerts').innerHTML,/王1&lt;明&gt;/);
   assert.equal(node('#alert-next').disabled,false);
   status=200;node('#alert-next').onclick();await drain();assert.equal(alertCalls().length,2,'same target page must retry immediately after failure');
-  assert.match(node('#alerts').innerHTML,/王4&lt;明&gt;/);assert.equal(node('#alert-next').disabled,false);
+  assert.match(node('#alerts').innerHTML,/王6&lt;明&gt;/);assert.equal(node('#alert-next').disabled,false);
   node('#alert-prev').onclick();await drain();assert.match(node('#alerts').innerHTML,/王1&lt;明&gt;/);
   calls.length=0;let release;waiting=new Promise(resolve=>release=resolve);offset+=6000;clock();await drain();
   assert.equal(alertCalls().length,1);assert.equal(alertCalls()[0].url.searchParams.get('page'),'2');assert.match(node('#alerts').innerHTML,/王1&lt;明&gt;/);
   assert.equal(node('#alert-next').disabled,true);dom.timers.find(timer=>timer.ms===20000).handler();await drain();assert.equal(alertCalls().length,1,'monitoring poll must share pending page request');
-  release();await drain();assert.match(node('#alerts').innerHTML,/王4&lt;明&gt;/);assert.equal(node('#gender').writes,populationWrites);assert.equal(node('#ranking').writes,rankingWrites);
+  release();await drain();assert.match(node('#alerts').innerHTML,/王6&lt;明&gt;/);assert.equal(node('#gender').writes,populationWrites);assert.equal(node('#ranking').writes,rankingWrites);
   for(const [enter,leave] of [['pointerenter','pointerleave'],['focusin','focusout']]){
    area.handlers[enter]({});calls.length=0;offset+=12000;clock();await drain();assert.equal(alertCalls().length,0);
    area.handlers[leave]({relatedTarget:null});offset+=6000;clock();await drain();assert.equal(alertCalls().length,1);
