@@ -17,7 +17,7 @@ ${panel('population','患者性别与年龄分布','当前确诊在管','<div id
 ${panel('institutions','机构工作量排行','年度事件',`<nav class="tabs" id="rank-tabs"><button class="active" data-key="sqScreeningCount">COPD-SQ</button><button data-key="lungFuncExamCount">肺功能</button><button data-key="score16Count">≥16分</button></nav><div id="ranking"></div><p class="footnote">按事件人次排序 · 点击机构联动地图</p>`,'<button class="text-button" id="all-institutions">明细 ↗</button>')}
 ${panel('monitoring','穿戴设备与预警动态','实时状态','<div id="wearable" class="mini-grid"></div><div id="alert-carousel"><div class="subheading"><span>当前未处理告警</span></div><div id="alerts" role="list"></div><nav class="alert-controls" aria-label="当前告警轮播"><button id="alert-prev" aria-label="上一组告警">‹</button><span id="alert-page" aria-live="polite"></span><button id="alert-next" aria-label="下一组告警">›</button><button id="alert-pause" aria-pressed="false">暂停轮播</button></nav></div>')}
 </aside><div class="center-column"><div id="metrics" class="metrics"></div>
-${panel('geography','武汉经济技术开发区（汉南区）','机构分布',`<div class="map-top"><span id="map-scope">全部授权机构</span><span>真实边界 · 滚轮缩放 / 拖动平移</span></div><div id="map"></div><div class="map-bottom"><span><i></i> 基层机构</span><span><i class="hospital"></i> 医院</span></div>`,'<button class="text-button" id="reset-scope">查看全部</button>')}
+${panel('geography','武汉经济技术开发区（汉南区）','','<div id="map"></div>')}
 ${panel('insights','慢阻肺共病统计','当前确诊在管',`<div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
 </div><aside class="right-column">
 ${panel('overview','筛查与人群概况','年度 / 当前状态','<div id="overview-list"></div>')}
@@ -60,10 +60,6 @@ function renderStatus(key) {
  const warnings=[errors.length?`${errors.length}个模块刷新失败`:null,stale.length?`${stale.length}个模块数据陈旧`:null,updating.length?`${updating.length}个模块刷新中`:null].filter(Boolean);
  document.querySelector('#connection').textContent=`管理端数据 · ${yearEl.value}年度事件 / 当前在管状态${actualTime}${warnings.length?' · '+warnings.join(' · '):''}${errors[0]?.error?' · '+errors[0].error:''}`;
  document.querySelector('#connection').classList.toggle('has-error',errors.length>0||stale.length>0);
- if(!key||key==='annual')renderMapStatus();
-}
-function renderMapStatus(){
- document.querySelector('#map-scope').textContent=scopeEl.selectedOptions[0]?.textContent??'全部授权机构';
 }
 const sections={};
 const add=(id,depends,update)=>sections[id]={depends,render:update};
@@ -94,7 +90,7 @@ add('alerts',['alerts'],()=>document.querySelector('#alerts').innerHTML=data.ale
 document.querySelector('#overview-list').innerHTML=Array.from({length:7},(_,i)=>`<div id="overview-${i}" class="overview-row"></div>`).join('');
 const overviewRows=[['COPD-SQ问卷','annual',()=>sum(data.annual,'sqScreeningCount'),'人次','年度'],['≥16分问卷','annual',()=>sum(data.annual,'score16Count'),'人次','年度'],['开展肺功能检查','annual',()=>sum(data.annual,'lungFuncExamCount'),'人次','年度'],['高危人群','highrisk',()=>data.highrisk?.total,'人','当前'],['待确诊','highrisk',()=>data.highrisk?.pending,'人','当前'],['确诊在管','population',()=>data.population?.total,'人','当前'],['随访记录','followup',()=>sum(data.followup,'visitCount'),'人次','年度']];
 overviewRows.forEach(([label,key,value,unit,period],i)=>add(`overview-${i}`,[key],()=>document.querySelector(`#overview-${i}`).innerHTML=`<span><i></i>${label}<small>${period}</small></span><b>${fmt(value())}<small>${unit}</small></b>`));
-add('map',['annual','scope'],()=>{renderMapStatus();map?.update(data.annual??[],scopeEl.value);});
+add('map',['annual','scope'],()=>map?.update(data.annual??[],scopeEl.value));
 const render=createSectionRenderer(sections);
 function renderAlertControls(){
  const value=carousel.snapshot();
@@ -178,7 +174,7 @@ function selectOrg(id) {if([...scopeEl.options].some(o=>o.value===String(id))){s
 document.addEventListener('click',e=>{const node=e.target.closest('[data-org]');if(node){selectOrg(node.dataset.org);closeDetail();}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr[data-org]'))selectOrg(e.target.dataset.org);});
 yearEl.onchange=()=>{if(syncToken()||!activeToken)return;closeDetail();for(const key of refresh.setContext({year:yearEl.value}))refresh.load(key);};
-scopeEl.onchange=refreshScope;document.querySelector('#reset-scope').onclick=()=>{scopeEl.value='';refreshScope();};
+scopeEl.onchange=refreshScope;
 window.addEventListener('storage',event=>{if(event.key==='token'||event.key==='refreshToken'||event.key===null)syncToken();});
 document.querySelector('#auth-retry').onclick=()=>auth.retry();
 window.addEventListener('focus',()=>{syncToken();refresh.checkFreshness();});
