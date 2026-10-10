@@ -19,8 +19,26 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
  svg.setAttribute('role','group');
  streetLayer.innerHTML=(streets?.features??[]).map(f=>{
   const center=f.properties.center,[x,y]=Array.isArray(center)?project(center):[0,0];
-  const [offsetX,offsetY]=({'军山街道':[60,12],'纱帽街道':[-40,-15],'东荆街道':[25,-12],'沌阳街道':[-35,-15],'沌口街道':[10,25]})[f.properties.name]??[0,0];
-  if(Array.isArray(center))streetLabels.push({x:x+offsetX,y:y+offsetY,preferredX:x+offsetX,preferredY:y+offsetY,width:Array.from(f.properties.name).length*16,name:f.properties.name});
+  if(Array.isArray(center)){
+   const width=Array.from(f.properties.name).length*16;
+   const unproject=([px,py])=>[minX+(px-24)*(maxX-minX)/720,maxY-(py-70)*(maxY-minY)/402];
+   const inside=point=>containsPoint(f.geometry,unproject(point))&&geo.features.some(d=>containsPoint(d.geometry,unproject(point)));
+   const vertices=(f.geometry.type==='Polygon'?f.geometry.coordinates.flat():f.geometry.coordinates.flat(2)).map(project);
+   const vx=vertices.map(p=>p[0]),vy=vertices.map(p=>p[1]);
+   const candidates=[[x,y]];
+   for(let py=Math.min(...vy)+4;py<Math.max(...vy);py+=8)for(let px=Math.min(...vx)+4;px<Math.max(...vx);px+=8)candidates.push([px,py]);
+   const markerPoints=Object.values(metadata).map(item=>project([item.lng,item.lat]));
+   let anchor=[x,y],best=Infinity;
+   for(const [px,py] of candidates){
+    if(!inside([px,py]))continue;
+    const outside=[[-width/2,-12],[width/2,-12],[-width/2,3],[width/2,3]].filter(([ox,oy])=>!inside([px+ox,py+oy])).length;
+    const markers=markerPoints.filter(([mx,my])=>px-width/2<mx+28&&px+width/2>mx-28&&py-24<my+28&&py+8>my-28).length;
+    const labels=streetLabels.filter(b=>Math.abs(px-b.x)<(width+b.width)/2+16&&Math.abs(py-b.y)<36).length;
+    const score=outside*1000000+(markers+labels)*100000+(px-x)**2+(py-y)**2;
+    if(score<best){best=score;anchor=[px,py];}
+   }
+   streetLabels.push({x:anchor[0],y:anchor[1],width,name:f.properties.name});
+  }
   return `<path class="street-region" data-street="${esc(f.properties.name)}" tabindex="0" role="button" aria-label="${esc(f.properties.name)}机构看板" d="${streetPath(f)}"/>`;
  }).join('');
  const clip=document.createElementNS('http://www.w3.org/2000/svg','clipPath');clip.id='district-clip';clip.innerHTML=`<path d="${path}"/>`;svg.querySelector('defs').append(clip);
@@ -48,21 +66,8 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
    const top=(overlay.top-rect.top-(rect.height-580*scale)/2)/scale;
    occupied.push({x:(left-500-dx)/zoom+500,y:(top+overlay.height/scale/2-290-dy)/zoom+290,width:overlay.width/scale/zoom,height:overlay.height/scale/zoom+16});
   }
-  // Give street names their own clear space before placing institution captions.
-  for(const label of streetLabels){
-   let placed=false;
-   for(const offset of [0,...Array.from({length:14},(_,i)=>[(i+1)*36,-(i+1)*36]).flat()]){
-    const y=Math.max(28-marginY,Math.min(552+marginY,label.preferredY+offset));
-    for(const shift of [0,-90,90,-180,180]){
-     const x=Math.max(20-marginX,Math.min(980+marginX-label.width,label.preferredX-label.width/2+shift));
-     if(!occupied.some(b=>x<b.x+b.width+16&&x+label.width+16>b.x&&Math.abs(y-b.y)<(b.height??72)/2)){
-      label.x=x+label.width/2;label.y=y;placed=true;break;
-     }
-    }
-    if(placed)break;
-   }
-   occupied.push({...label,x:label.x-label.width/2,height:72});
-  }
+  // Street names identify fixed geographic regions; move institution captions instead.
+  for(const label of streetLabels)occupied.push({...label,x:label.x-label.width/2,height:48});
   streetLayer.innerHTML=`<g clip-path="url(#district-clip)">${(streets?.features??[]).map(f=>`<path class="street-region" data-street="${esc(f.properties.name)}" tabindex="0" role="button" aria-label="${esc(f.properties.name)}机构看板" d="${streetPath(f)}"/>`).join('')}</g>`+streetLabels.map(b=>`<text class="street-label" x="${b.x}" y="${b.y}" text-anchor="middle">${esc(b.name)}</text>`).join('');
   points.innerHTML=entries.map(([id,item])=>{
    const [x,y]=project([item.lng,item.lat]);

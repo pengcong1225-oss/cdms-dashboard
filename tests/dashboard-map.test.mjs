@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createMap} from '../src/dashboard/map.mjs';
+import {createMap,containsPoint} from '../src/dashboard/map.mjs';
+import {readFileSync} from 'node:fs';
 import {dashboardDom} from './dashboard-dom.mjs';
 
 test('institution hover contains only the requested three statistics and ignores late responses after leaving',async()=>{
@@ -138,5 +139,27 @@ test('street captions clear northern institution markers and each other',()=>{
    assert.equal(label.x-label.width/2<x+28&&label.x+label.width/2>x-28&&label.y-24<y+28&&label.y+8>y-28,false,'street caption must clear marker with breathing room');
   }
   assert.ok(Math.abs(labels[0].y-labels[1].y)>=36||Math.abs(labels[0].x-labels[1].x)>=(labels[0].width+labels[1].width)/2+16,'street captions must have breathing room');
+ }finally{installed.restore();}
+});
+
+
+test('real street captions stay inside their own district and do not move with institution scope',()=>{
+ const dom=dashboardDom(),installed=dom.install();
+ try{
+  const geo=JSON.parse(readFileSync(new URL('../public/map/whkfq.json',import.meta.url),'utf8'));
+  const streets=JSON.parse(readFileSync(new URL('../assets/streets.json',import.meta.url),'utf8'));
+  const metadata=JSON.parse(readFileSync(new URL('../server/map-config.json',import.meta.url),'utf8'));
+  const coordinates=geo.features.flatMap(f=>f.geometry.type==='Polygon'?f.geometry.coordinates.flat():f.geometry.coordinates.flat(2));
+  const xs=coordinates.map(p=>p[0]),ys=coordinates.map(p=>p[1]),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const map=createMap(dom.node('#map'),geo,metadata,()=>{},streets);
+  const read=()=>[...dom.node('created g').innerHTML.matchAll(/<text class="street-label" x="([\d.-]+)" y="([\d.-]+)"[^>]*>([^<]+)<\/text>/g)].map(m=>({x:+m[1],y:+m[2],name:m[3]}));
+  map.update(Object.keys(metadata).map(orgId=>({orgId})));
+  const labels=read();assert.equal(labels.length,7);
+  for(const label of labels){
+   const location=[minX+(label.x-24)*(maxX-minX)/720,maxY-(label.y-70)*(maxY-minY)/402];
+   assert.ok(containsPoint(streets.features.find(f=>f.properties.name===label.name).geometry,location),label.name+' must identify its own region');
+   assert.ok(geo.features.some(f=>containsPoint(f.geometry,location)),label.name+' must remain on the district map');
+  }
+  map.update([]);assert.deepEqual(read(),labels,'street labels are geographic anchors, not institution-scope-dependent captions');
  }finally{installed.restore();}
 });
