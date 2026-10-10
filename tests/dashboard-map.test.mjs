@@ -3,6 +3,20 @@ import assert from 'node:assert/strict';
 import {createMap} from '../src/dashboard/map.mjs';
 import {dashboardDom} from './dashboard-dom.mjs';
 
+test('scaled map labels avoid the fixed street legend',()=>{
+ const dom=dashboardDom(),installed=dom.install();
+ try{
+  dom.node('#map svg').getBoundingClientRect=()=>({left:10,top:20,width:500,height:290});
+  dom.node('#map .map-street-legend').getBoundingClientRect=()=>({left:400,top:260,width:110,height:50});
+  const geo={features:[{geometry:{type:'Polygon',coordinates:[[[0,0],[2,0],[2,2],[0,2],[0,0]]]}}]};
+  const map=createMap(dom.node('#map'),geo,{a:{name:'红十字会',lng:1.63,lat:.2}},()=>{});
+  map.update([{orgId:'a'}]);
+  const label=dom.node('#map #map-points').innerHTML.match(/<text x="([\d.]+)" y="([\d.]+)"/);
+  assert.ok(label);
+  assert.ok(Number(label[2])<=472,'label baseline must stay above the legend at SVG y=480');
+ }finally{installed.restore();}
+});
+
 test('labelled map keeps district fit, scoped street counts, drilldown and wheel navigation without toolbar controls',()=>{
  const dom=dashboardDom(),installed=dom.install();
  try {

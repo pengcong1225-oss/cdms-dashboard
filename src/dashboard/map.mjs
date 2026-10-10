@@ -37,6 +37,13 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet) {
   legend.innerHTML=(streets?.features??[]).map(feature=>`<button data-street="${esc(feature.properties.name)}"><span>${esc(feature.properties.name)}</span><i aria-hidden="true">✚</i><b>${fmt(streetRows(feature).length)}</b></button>`).join('');
   const occupied=streetLabels.map(b=>({...b,x:b.x-b.width/2}));
   const {rect,scale}=viewport(),marginX=(rect.width/scale-1000)/2;
+  // The legend stays fixed outside the scene; convert its screen box into scene units.
+  const overlay=legend.getBoundingClientRect();
+  if(overlay.width>0&&overlay.height>0){
+   const left=(overlay.left-rect.left)/scale-marginX;
+   const top=(overlay.top-rect.top-(rect.height-580*scale)/2)/scale;
+   occupied.push({x:(left-500-dx)/zoom+500,y:(top+overlay.height/scale/2-290-dy)/zoom+290,width:overlay.width/scale/zoom,height:overlay.height/scale/zoom+16});
+  }
   points.innerHTML=Object.entries(metadata).filter(([id])=>byId.has(id)).map(([id,item])=>{
    const [x,y]=project([item.lng,item.lat]);
    const center=item.shortName==='亚心';
@@ -45,9 +52,9 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet) {
    const width=Math.min(940,Array.from(label).length*18),[preferredX,preferredY]=project([item.labelLng??item.lng,item.labelLat??item.lat]);
    const lx=Math.max(20-marginX,Math.min(980+marginX-width,preferredX+5));
    let ly=Math.max(22,Math.min(558,preferredY+5));
-   for(const offset of [0,24,-24,48,-48,72,-72]){
+   for(const offset of [0,24,-24,48,-48,72,-72,96,-96,120,-120,144,-144]){
     const candidate=Math.max(22,Math.min(558,preferredY+5+offset));
-    if(!occupied.some(b=>lx<b.x+b.width+8&&lx+width+8>b.x&&Math.abs(candidate-b.y)<22)){ly=candidate;break;}
+    if(!occupied.some(b=>lx<b.x+b.width+8&&lx+width+8>b.x&&Math.abs(candidate-b.y)<(b.height??44)/2)){ly=candidate;break;}
    }
    occupied.push({x:lx,y:ly,width});
    return `<g class="institution ${center?'hospital':''} ${id===selected?'selected':''}" data-org="${esc(id)}" tabindex="0" role="button" aria-label="${esc(item.name)}"><path class="leader" d="M${x} ${y}L${lx} ${ly-5}"/><g transform="translate(${x} ${y})"><circle class="halo" r="${center?19:15}"/><circle class="marker-ring" r="${center?16:12}"/><path class="medical-symbol" d="${symbol}"/></g><text x="${lx}" y="${ly}">${esc(label)}</text></g>`;

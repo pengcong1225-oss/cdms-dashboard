@@ -6,10 +6,11 @@ import {createRefreshController,annualKeys,ordinaryKeys,monitoringKeys,allKeys} 
 import {createSectionRenderer} from './render.mjs';
 import {createAuthSession} from './auth.mjs';
 import {createAlertCarousel,renderAlertRecords} from './alert-carousel.mjs';
+import {createPresentation} from './presentation.mjs';
 const mountedUrl=path=>dashboardUrl(path,document.baseURI);
 
 const panel=(id,title,note,body,actions='')=>`<section class="panel" id="${id}"><header><h2>${title}</h2><small>${note}</small>${actions}</header><div class="panel-body">${body}</div><footer class="panel-state"></footer></section>`;
-document.querySelector('#dashboard').innerHTML=`<header class="topbar"><div class="top-left"><a class="button" href="/cdmsmanager/">‹ 返回工作台</a><label>年度 <select id="year" aria-label="统计年度"></select></label></div><div class="brand"><h1>武汉经开区医防融合慢阻肺数智化健康管理平台</h1><p>CHRONIC RESPIRATORY DISEASE · INTELLIGENT PREVENTION & MANAGEMENT</p></div><div class="top-right"><select id="scope" aria-label="机构范围"><option value="">全部授权机构</option></select><time id="clock"></time><button id="fullscreen">全屏</button></div></header>
+document.querySelector('#dashboard').innerHTML=`<header class="topbar"><div class="top-left"><a class="button" href="/cdmsmanager/">‹ 返回工作台</a><label>年度 <select id="year" aria-label="统计年度"></select></label></div><div class="brand"><h1>武汉经开区医防融合慢阻肺数智化健康管理平台</h1><p>CHRONIC RESPIRATORY DISEASE · INTELLIGENT PREVENTION & MANAGEMENT</p></div><div class="top-right"><select id="scope" aria-label="机构范围"><option value="">全部授权机构</option></select><time id="clock"></time><select id="layout-mode" aria-label="布局模式"><option value="auto">布局：自动</option><option value="16:9">布局：16∶9</option><option value="4:3">布局：4∶3</option></select><button id="fullscreen">全屏</button></div></header>
 <div id="connection" class="connection" role="status">正在连接管理端 · 年度事件与当前状态分别统计</div>
 <div id="auth-gate" class="auth-gate" hidden><section class="auth-card" aria-labelledby="auth-title"><h2 id="auth-title">管理端登录</h2><p id="auth-message" role="status"></p><a id="auth-login" class="button" href="/cdmsmanager/login" target="_blank" rel="noopener">登录管理端 ↗</a><button id="auth-retry" hidden>重试连接</button></section></div>
 <main class="layout"><aside class="left-column">
@@ -25,6 +26,7 @@ ${panel('gold','肺功能GOLD分级','当前确诊在管','<div id="gold-bars"><
 ${panel('risk','COPD-SQ问卷风险','当前确诊在管','<div id="risk-summary"></div><div class="subheading">综合评估分组</div><div id="abe-bars"></div><p class="footnote">问卷≥16分为高风险 · 综合评估保留历史C/D</p>')}
 ${panel('quality','档案质控情况','当前确诊在管','<div id="quality-ring"></div><p class="footnote">患者档案质控口径</p>')}
 </aside></main><footer class="page-footer">数据来源：CDMS管理端 · 普通统计60秒更新 / 监测20秒更新 <a id="legacy-entry" hidden href="${mountedUrl('legacy.html')}">旧版兼容入口 ↗</a></footer>`;
+createPresentation({root:document.querySelector('#dashboard'),control:document.querySelector('#layout-mode')});
 
 const currentYear=new Date().getFullYear(),yearEl=document.querySelector('#year'),scopeEl=document.querySelector('#scope');
 for(let year=currentYear;year>=2024;year--)yearEl.add(new Option(`${year}年`,year));

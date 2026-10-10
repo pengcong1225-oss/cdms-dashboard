@@ -5,7 +5,7 @@ export function dashboardDom() {
  const node=selector=>{
   if(nodes.has(selector))return nodes.get(selector);
   let html='',value='';
-  const item={writes:0,attributes:{},handlers:{},options:[],dataset:{},hidden:false,textContent:'',title:'',classList:{toggle(){}},
+  const item={writes:0,attributes:{},handlers:{},options:[],dataset:{},style:{},hidden:false,textContent:'',title:'',classList:{toggle(){}},
    get innerHTML(){return html;},set innerHTML(next){html=next;this.writes++;},
    get value(){return value;},set value(next){value=String(next);},
    get selectedOptions(){return this.options.filter(option=>option.value===value);},
