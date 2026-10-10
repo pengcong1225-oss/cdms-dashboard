@@ -115,3 +115,19 @@ body{font-size:14px}
 
 /* Reclaim the map title row while keeping the panel edge clear. */
 #geography .panel-body{padding-top:8px}
+
+/* Map and institution statistics follow the supplied visual reference. */
+#map .street-label,#map .institution text{font-family:SimSun,'Songti SC',serif;font-weight:400;fill:#e4f2ff;stroke:none}
+#map .district-outline{fill:#507f98;opacity:.94;stroke:#8dc6dd}
+#map .street-region{stroke:#a3d3e399}
+#map .institution .leader{stroke:#bbd9e8;stroke-dasharray:7 6}
+#map .map-tooltip.institution-tooltip{background:linear-gradient(180deg,#142b57eb,#11254feb);border-color:#2b487477}
+.institution-tooltip-heading strong,.institution-tooltip-heading>span,#map .institution-tooltip-stats p{font-family:'Microsoft YaHei','PingFang SC',sans-serif;font-weight:700}
+.institution-tooltip-stats b{font-family:Arial,sans-serif;font-weight:800}
+.institution-tooltip-heading strong{font-size:19px}
+.institution-tooltip-heading>span{font-size:16px;color:#9cdaff}
+#map .institution-tooltip-stats p{font-size:17px;background:#1b376066;border-left-color:#55d5ed;padding:10px 10px}
+.institution-tooltip-stats b{font-size:30px;color:#57d5f2;text-shadow:0 0 16px #38cfff80}
+#dashboard[data-aspect="4:3"] #map .map-tooltip.institution-tooltip{width:350px}
+#dashboard[data-aspect="4:3"] .institution-tooltip-heading strong{font-size:16px}
+#dashboard[data-aspect="4:3"] .institution-tooltip-stats p{font-size:15px}

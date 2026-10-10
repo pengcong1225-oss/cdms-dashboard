@@ -19,8 +19,8 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
  svg.setAttribute('role','group');
  streetLayer.innerHTML=(streets?.features??[]).map(f=>{
   const center=f.properties.center,[x,y]=Array.isArray(center)?project(center):[0,0];
-  const [offsetX,offsetY]=({'军山街道':[60,12],'纱帽街道':[-40,-15],'东荆街道':[25,-12],'沌阳街道':[-12,-20]})[f.properties.name]??[0,0];
-  if(Array.isArray(center))streetLabels.push({x:x+offsetX,y:y+offsetY,width:Array.from(f.properties.name).length*21,name:f.properties.name});
+  const [offsetX,offsetY]=({'军山街道':[60,12],'纱帽街道':[-40,-15],'东荆街道':[25,-12],'沌阳街道':[-105,-65],'沌口街道':[55,35]})[f.properties.name]??[0,0];
+  if(Array.isArray(center))streetLabels.push({x:x+offsetX,y:y+offsetY,preferredX:x+offsetX,preferredY:y+offsetY,width:Array.from(f.properties.name).length*21,name:f.properties.name});
   return `<path class="street-region" data-street="${esc(f.properties.name)}" tabindex="0" role="button" aria-label="${esc(f.properties.name)}机构看板" d="${streetPath(f)}"/>`;
  }).join('');
  const clip=document.createElementNS('http://www.w3.org/2000/svg','clipPath');clip.id='district-clip';clip.innerHTML=`<path d="${path}"/>`;svg.querySelector('defs').append(clip);
@@ -37,9 +37,9 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
   const byId=new Map(visibleRows.map(row=>[String(row.orgId),row]));
   legend.innerHTML=(streets?.features??[]).map(feature=>`<button data-street="${esc(feature.properties.name)}"><span>${esc(feature.properties.name)}</span><i aria-hidden="true">✚</i><b>${fmt(streetRows(feature).length)}</b></button>`).join('');
   const entries=Object.entries(metadata).filter(([id])=>byId.has(id)).sort(([,a],[,b])=>Number(b.shortName==='亚心')-Number(a.shortName==='亚心'));
-  const occupied=streetLabels.map(b=>({...b,x:b.x-b.width/2}));
+  const occupied=[];
   // Names must clear the stars and crosses, including the other institutions' markers.
-  for(const [,item] of entries){const [x,y]=project([item.lng,item.lat]);occupied.push({x:x-20,y:y+10,width:40,height:64});}
+  for(const [,item] of entries){const [x,y]=project([item.lng,item.lat]);occupied.push({x:x-28,y:y+8,width:56,height:80});}
   const {rect,scale}=viewport(),marginX=(rect.width/scale-1000)/2,marginY=((rect.height??580*scale)/scale-580)/2;
   // The legend stays fixed outside the scene; convert its screen box into scene units.
   const overlay=legend.getBoundingClientRect();
@@ -48,12 +48,30 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
    const top=(overlay.top-rect.top-(rect.height-580*scale)/2)/scale;
    occupied.push({x:(left-500-dx)/zoom+500,y:(top+overlay.height/scale/2-290-dy)/zoom+290,width:overlay.width/scale/zoom,height:overlay.height/scale/zoom+16});
   }
+  // Give street names their own clear space before placing institution captions.
+  for(const label of streetLabels){
+   let placed=false;
+   for(const offset of [0,...Array.from({length:14},(_,i)=>[(i+1)*36,-(i+1)*36]).flat()]){
+    const y=Math.max(28-marginY,Math.min(552+marginY,label.preferredY+offset));
+    for(const shift of [0,-90,90,-180,180]){
+     const x=Math.max(20-marginX,Math.min(980+marginX-label.width,label.preferredX-label.width/2+shift));
+     if(!occupied.some(b=>x<b.x+b.width+16&&x+label.width+16>b.x&&Math.abs(y-b.y)<(b.height??72)/2)){
+      label.x=x+label.width/2;label.y=y;placed=true;break;
+     }
+    }
+    if(placed)break;
+   }
+   occupied.push({...label,x:label.x-label.width/2,height:72});
+  }
+  streetLayer.innerHTML=`<g clip-path="url(#district-clip)">${(streets?.features??[]).map(f=>`<path class="street-region" data-street="${esc(f.properties.name)}" tabindex="0" role="button" aria-label="${esc(f.properties.name)}机构看板" d="${streetPath(f)}"/>`).join('')}</g>`+streetLabels.map(b=>`<text class="street-label" x="${b.x}" y="${b.y}" text-anchor="middle">${esc(b.name)}</text>`).join('');
   points.innerHTML=entries.map(([id,item])=>{
    const [x,y]=project([item.lng,item.lat]);
    const center=item.shortName==='亚心';
    const symbol=center?'M0 -15L4.4 -4.9L15 -4.6L7.1 2.7L9.3 13.6L0 7.9L-9.3 13.6L-7.1 2.7L-15 -4.6L-4.4 -4.9Z':'M-2.5 -8H2.5V-2.5H8V2.5H2.5V8H-2.5V2.5H-8V-2.5H-2.5Z';
    const label=center?'亚心（经开区慢呼中心）':item.shortName??item.name;
-   const width=Math.min(940,Array.from(label).length*18),[preferredX,preferredY]=project([item.labelLng??item.lng,item.labelLat??item.lat]);
+   const width=Math.min(940,Array.from(label).length*18),preferred=project([item.labelLng??item.lng,item.labelLat??item.lat]);
+   const [spreadX,spreadY]=({'亚心':[-70,-60],'碧湖':[-85,-45],'名逸':[-100,-100],'新民':[-100,65]})[item.shortName]??[0,0];
+   const [preferredX,preferredY]=[preferred[0]+spreadX,preferred[1]+spreadY];
    const clampX=value=>Math.max(20-marginX,Math.min(980+marginX-width,value));
    const clampY=value=>Math.max(22-marginY,Math.min(558+marginY,value));
    const positions=[...new Set((center?[x+28,preferredX+5,x-width-28]:[preferredX+5,x+28,x-width-28]).map(clampX))];
@@ -61,7 +79,7 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
    for(const offset of [0,...Array.from({length:12},(_,i)=>[(i+1)*24,-(i+1)*24]).flat()]){
     const candidate=clampY(preferredY+5+offset);
     for(const position of positions){
-     if(!occupied.some(b=>position<b.x+b.width+8&&position+width+8>b.x&&Math.abs(candidate-b.y)<(b.height??44)/2)){lx=position;ly=candidate;placed=true;break;}
+     if(!occupied.some(b=>position<b.x+b.width+16&&position+width+16>b.x&&Math.abs(candidate-b.y)<(b.height??64)/2)){lx=position;ly=candidate;placed=true;break;}
     }
     if(placed)break;
    }

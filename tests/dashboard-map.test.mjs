@@ -121,3 +121,22 @@ test('labelled map keeps district fit, scoped street counts, drilldown and wheel
   map.update([]);assert.equal(points.innerHTML,'');assert.equal(tooltip.hidden,true);
  }finally{installed.restore();}
 });
+
+
+test('street captions clear northern institution markers and each other',()=>{
+ const dom=dashboardDom(),installed=dom.install();
+ try{
+  const geometry={type:'Polygon',coordinates:[[[0,0],[2,0],[2,2],[0,2],[0,0]]]};
+  const streets={features:['沌阳街道','沌口街道'].map(name=>({geometry,properties:{name,center:[1.7,1.7]}}))};
+  const metadata={a:{name:'亚心',shortName:'亚心',lng:1.7,lat:1.7},b:{name:'新民',lng:1.55,lat:1.8}};
+  const map=createMap(dom.node('#map'),{features:[{geometry}]},metadata,()=>{},streets);
+  map.update([{orgId:'a'},{orgId:'b'}]);
+  const labels=[...dom.node('created g').innerHTML.matchAll(/<text class="street-label" x="([\d.-]+)" y="([\d.-]+)"[^>]*>([^<]+)<\/text>/g)].map(m=>({x:+m[1],y:+m[2],width:Array.from(m[3]).length*21}));
+  assert.equal(labels.length,2);
+  for(const label of labels)for(const item of Object.values(metadata)){
+   const x=24+item.lng*476,y=24+(2-item.lat)*266;
+   assert.equal(label.x-label.width/2<x+28&&label.x+label.width/2>x-28&&label.y-24<y+28&&label.y+8>y-28,false,'street caption must clear marker with breathing room');
+  }
+  assert.ok(Math.abs(labels[0].y-labels[1].y)>=36||Math.abs(labels[0].x-labels[1].x)>=(labels[0].width+labels[1].width)/2+16,'street captions must have breathing room');
+ }finally{installed.restore();}
+});
