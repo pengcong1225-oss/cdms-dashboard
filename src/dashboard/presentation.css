@@ -131,3 +131,21 @@ body{font-size:14px}
 #dashboard[data-aspect="4:3"] #map .map-tooltip.institution-tooltip{width:350px}
 #dashboard[data-aspect="4:3"] .institution-tooltip-heading strong{font-size:16px}
 #dashboard[data-aspect="4:3"] .institution-tooltip-stats p{font-size:15px}
+
+/* Client-approved column order and legacy map styling. */
+.left-column{grid-template-rows:minmax(0,1.2fr) minmax(0,1.45fr) minmax(0,1.45fr) minmax(0,.85fr)}
+.right-column{grid-template-rows:minmax(0,1fr) minmax(0,.85fr) minmax(0,1.25fr)}
+#map .street-label,#map .institution text{font-family:'Microsoft YaHei','PingFang SC',sans-serif;fill:#d6e8f4}
+#map .district-outline{fill:url(#map-fill);opacity:.9;stroke:#78c3dd}
+#map .street-region{stroke:#83c5dd66}
+#map .institution .leader{stroke:#a0cbe1;stroke-width:1.1;stroke-dasharray:6 5}
+#map .street-tooltip-hint{display:block;margin:0;padding:0 16px 14px;font-size:12px;color:#6ccbe8}
+
+/* Keep overview and GOLD notes visible; scroll only the institution rows. */
+.left-column{grid-template-rows:236px minmax(0,1fr) 270px 180px}
+#institutions .panel-body{display:flex;flex-direction:column;min-height:0}
+#institutions .tabs,#institutions .footnote{flex:none}
+#ranking{flex:1;min-height:0;overflow:auto}
+
+#map .street-label{font-size:16px}
+#map .institution text{font-size:14px}

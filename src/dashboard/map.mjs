@@ -7,9 +7,9 @@ export function containsPoint(geometry,point) {
 export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadInstitutionStats) {
  const coordinates=geo.features.flatMap(f=>f.geometry.type==='Polygon'?f.geometry.coordinates.flat():f.geometry.coordinates.flat(2));
  const xs=coordinates.map(p=>p[0]),ys=coordinates.map(p=>p[1]);
- // Fit the district; keep restored labels inside the viewport without shrinking the map.
+ // Fit the district with space for the legacy-style outer institution captions.
  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
- const project=([x,y])=>[24+(x-minX)*952/(maxX-minX||1),24+(maxY-y)*532/(maxY-minY||1)];
+ const project=([x,y])=>[24+(x-minX)*720/(maxX-minX||1),70+(maxY-y)*402/(maxY-minY||1)];
  const path=geo.features.map(f=>(f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates).map(polygon=>polygon.map(ring=>ring.map((p,i)=>(i?'L':'M')+project(p).join(',')).join(' ')+' Z').join(' ')).join(' ')).join(' ');
  container.innerHTML=`<svg class="map-svg" viewBox="0 0 1000 580" role="img" aria-label="武汉经济技术开发区真实地图，滚轮缩放、拖动平移"><defs><linearGradient id="map-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3c8db0"/><stop offset="1" stop-color="#24587f"/></linearGradient></defs><g id="map-scene"><path class="district-outline" d="${path}" fill="url(#map-fill)" stroke="#78c3dd" stroke-width="1.6"/><g id="map-points"></g></g></svg><nav class="map-street-legend" aria-label="各街道机构数量"></nav><div class="map-tooltip" hidden></div>`;
  const svg=container.querySelector('svg'),scene=container.querySelector('#map-scene'),points=container.querySelector('#map-points'),tooltip=container.querySelector('.map-tooltip');
@@ -19,8 +19,8 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
  svg.setAttribute('role','group');
  streetLayer.innerHTML=(streets?.features??[]).map(f=>{
   const center=f.properties.center,[x,y]=Array.isArray(center)?project(center):[0,0];
-  const [offsetX,offsetY]=({'军山街道':[60,12],'纱帽街道':[-40,-15],'东荆街道':[25,-12],'沌阳街道':[-105,-65],'沌口街道':[55,35]})[f.properties.name]??[0,0];
-  if(Array.isArray(center))streetLabels.push({x:x+offsetX,y:y+offsetY,preferredX:x+offsetX,preferredY:y+offsetY,width:Array.from(f.properties.name).length*21,name:f.properties.name});
+  const [offsetX,offsetY]=({'军山街道':[60,12],'纱帽街道':[-40,-15],'东荆街道':[25,-12],'沌阳街道':[-35,-15],'沌口街道':[10,25]})[f.properties.name]??[0,0];
+  if(Array.isArray(center))streetLabels.push({x:x+offsetX,y:y+offsetY,preferredX:x+offsetX,preferredY:y+offsetY,width:Array.from(f.properties.name).length*16,name:f.properties.name});
   return `<path class="street-region" data-street="${esc(f.properties.name)}" tabindex="0" role="button" aria-label="${esc(f.properties.name)}机构看板" d="${streetPath(f)}"/>`;
  }).join('');
  const clip=document.createElementNS('http://www.w3.org/2000/svg','clipPath');clip.id='district-clip';clip.innerHTML=`<path d="${path}"/>`;svg.querySelector('defs').append(clip);
@@ -69,12 +69,12 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
    const center=item.shortName==='亚心';
    const symbol=center?'M0 -15L4.4 -4.9L15 -4.6L7.1 2.7L9.3 13.6L0 7.9L-9.3 13.6L-7.1 2.7L-15 -4.6L-4.4 -4.9Z':'M-2.5 -8H2.5V-2.5H8V2.5H2.5V8H-2.5V2.5H-8V-2.5H-2.5Z';
    const label=center?'亚心（经开区慢呼中心）':item.shortName??item.name;
-   const width=Math.min(940,Array.from(label).length*18),preferred=project([item.labelLng??item.lng,item.labelLat??item.lat]);
-   const [spreadX,spreadY]=({'亚心':[-70,-60],'碧湖':[-85,-45],'名逸':[-100,-100],'新民':[-100,65]})[item.shortName]??[0,0];
+   const width=Math.min(940,Array.from(label).length*14),preferred=project([item.labelLng??item.lng,item.labelLat??item.lat]);
+   const [spreadX,spreadY]=({'亚心':[110,0],'碧湖':[-85,-45],'名逸':[0,-70],'新民':[35,-60]})[item.shortName]??[0,0];
    const [preferredX,preferredY]=[preferred[0]+spreadX,preferred[1]+spreadY];
    const clampX=value=>Math.max(20-marginX,Math.min(980+marginX-width,value));
    const clampY=value=>Math.max(22-marginY,Math.min(558+marginY,value));
-   const positions=[...new Set((center?[x+28,preferredX+5,x-width-28]:[preferredX+5,x+28,x-width-28]).map(clampX))];
+   const positions=[...new Set((center?[preferredX+5,x+28,x-width-28]:[preferredX+5,x+28,x-width-28]).map(clampX))];
    let lx=positions[0],ly=clampY(preferredY+5),placed=false;
    for(const offset of [0,...Array.from({length:12},(_,i)=>[(i+1)*24,-(i+1)*24]).flat()]){
     const candidate=clampY(preferredY+5+offset);
@@ -94,7 +94,8 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
    tooltip.classList.toggle('institution-tooltip',false);
    const street=target.closest('[data-street]'),feature=(streets?.features??[]).find(f=>f.properties.name===street?.dataset.street);
    if(!feature){tooltip.hidden=true;return;}
-   tooltip.innerHTML=`<strong>${esc(feature.properties.name)}</strong><p>机构数量：<b>${fmt(streetRows(feature).length)}</b></p><small>点击查看街道机构看板</small>`;tooltip.hidden=false;return;
+   tooltip.classList.toggle('institution-tooltip',true);
+   tooltip.innerHTML=`<div class="institution-tooltip-heading"><strong>${esc(feature.properties.name)}</strong><span>街道机构概况</span></div><div class="institution-tooltip-stats"><p><span>机构数量：</span><b>${fmt(streetRows(feature).length)}</b><small>家</small></p></div><small class="street-tooltip-hint">点击查看街道机构看板</small>`;tooltip.hidden=false;return;
   }
   const row=visibleRows.find(r=>String(r.orgId)===node.dataset.org);const item=metadata[node.dataset.org];
   if(!row||!item){tooltip.hidden=true;return;}

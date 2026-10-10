@@ -34,9 +34,9 @@ test('hospital long labels clear all medical markers even in a narrow map',()=>{
   map.update(Object.keys(metadata).map(orgId=>({orgId})));
   const html=dom.node('#map #map-points').innerHTML;
   const star=html.match(/data-org="a"[\s\S]*?<text x="([\d.-]+)" y="([\d.-]+)"/);
-  const lx=Number(star[1]),ly=Number(star[2]),width=Array.from('亚心（经开区慢呼中心）').length*18;
+  const lx=Number(star[1]),ly=Number(star[2]),width=Array.from('亚心（经开区慢呼中心）').length*14;
   for(const item of Object.values(metadata)){
-   const x=24+item.lng*476,y=24+(2-item.lat)*266;
+   const x=24+item.lng*360,y=70+(2-item.lat)*201;
    const overlaps=lx<x+20&&lx+width>x-20&&ly-18<y+20&&ly>y-20;
    assert.equal(overlaps,false,'hospital caption must not overlap a star or plus marker');
   }
@@ -93,7 +93,7 @@ test('labelled map keeps district fit, scoped street counts, drilldown and wheel
   assert.match(dom.node('created g').innerHTML,/street-label.*?西街/);
   assert.match(legend.innerHTML,/西街.*?<b>1<\/b>/);assert.match(legend.innerHTML,/东街.*?<b>1<\/b>/);
   assert.match(points.innerHTML,/<text x="20" y="22">&lt;普通&gt;/);
-  assert.match(points.innerHTML,/translate\(262 290\)/);
+  assert.match(points.innerHTML,/translate\(204 271\)/);
   assert.match(points.innerHTML,/institution hospital/);
   assert.doesNotMatch(dom.node('#map').innerHTML,/map-controls|data-reset|data-zoom/);
   svg.handlers.wheel({preventDefault(){},deltaY:-1});const transform=dom.node('#map #map-scene').attributes.transform;
@@ -105,7 +105,7 @@ test('labelled map keeps district fit, scoped street counts, drilldown and wheel
   const anchoredTransform=dom.node('#map #map-scene').attributes.transform;
   const street={dataset:{street:'东街'}};
   svg.handlers.pointerover({target:{closest:selector=>selector==='[data-street]'?street:null}});
-  assert.match(tooltip.innerHTML,/机构数量：<b>1<\/b>/);
+  assert.match(tooltip.innerHTML,/机构数量：<\/span><b>1<\/b>/);
   legend.handlers.click({target:{closest:()=>street}});
   assert.deepEqual(opened,[['东街',[{orgId:'b'}]]]);
   svg.handlers.click({target:{closest:selector=>selector==='[data-street]'?null:{dataset:{org:'b'}}},stopPropagation(){}});
@@ -116,7 +116,7 @@ test('labelled map keeps district fit, scoped street counts, drilldown and wheel
   assert.doesNotMatch(points.innerHTML,/data-org="b"/);
   assert.match(legend.innerHTML,/东街.*?<b>0<\/b>/);
   svg.handlers.pointerover({target:{closest:selector=>selector==='[data-street]'?street:null}});
-  assert.match(tooltip.innerHTML,/机构数量：<b>0<\/b>/);
+  assert.match(tooltip.innerHTML,/机构数量：<\/span><b>0<\/b>/);
   assert.equal(dom.node('#map #map-scene').attributes.transform,anchoredTransform);
   map.update([]);assert.equal(points.innerHTML,'');assert.equal(tooltip.hidden,true);
  }finally{installed.restore();}
@@ -131,10 +131,10 @@ test('street captions clear northern institution markers and each other',()=>{
   const metadata={a:{name:'亚心',shortName:'亚心',lng:1.7,lat:1.7},b:{name:'新民',lng:1.55,lat:1.8}};
   const map=createMap(dom.node('#map'),{features:[{geometry}]},metadata,()=>{},streets);
   map.update([{orgId:'a'},{orgId:'b'}]);
-  const labels=[...dom.node('created g').innerHTML.matchAll(/<text class="street-label" x="([\d.-]+)" y="([\d.-]+)"[^>]*>([^<]+)<\/text>/g)].map(m=>({x:+m[1],y:+m[2],width:Array.from(m[3]).length*21}));
+  const labels=[...dom.node('created g').innerHTML.matchAll(/<text class="street-label" x="([\d.-]+)" y="([\d.-]+)"[^>]*>([^<]+)<\/text>/g)].map(m=>({x:+m[1],y:+m[2],width:Array.from(m[3]).length*16}));
   assert.equal(labels.length,2);
   for(const label of labels)for(const item of Object.values(metadata)){
-   const x=24+item.lng*476,y=24+(2-item.lat)*266;
+   const x=24+item.lng*360,y=70+(2-item.lat)*201;
    assert.equal(label.x-label.width/2<x+28&&label.x+label.width/2>x-28&&label.y-24<y+28&&label.y+8>y-28,false,'street caption must clear marker with breathing room');
   }
   assert.ok(Math.abs(labels[0].y-labels[1].y)>=36||Math.abs(labels[0].x-labels[1].x)>=(labels[0].width+labels[1].width)/2+16,'street captions must have breathing room');
