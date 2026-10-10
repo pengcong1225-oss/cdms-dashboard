@@ -14,6 +14,15 @@ test('scaled map labels avoid the fixed street legend',()=>{
   const label=dom.node('#map #map-points').innerHTML.match(/<text x="([\d.]+)" y="([\d.]+)"/);
   assert.ok(label);
   assert.ok(Number(label[2])<=472,'label baseline must stay above the legend at SVG y=480');
+  const svg=dom.node('#map svg'),scene=dom.node('#map #map-scene');
+  svg.handlers.wheel({preventDefault(){},deltaY:-1,clientX:385,clientY:237.5});
+  const offsets=()=>scene.attributes.transform.match(/^translate\(([-\d.]+) ([-\d.]+)\)/).slice(1).map(Number);
+  let [dx,dy]=offsets();
+  assert.ok(Math.abs(dx+25)<1e-8&&Math.abs(dy+14.5)<1e-8,'wheel anchor uses scaled screen coordinates');
+  svg.handlers.pointerdown({clientX:100,clientY:100,target:{closest:()=>null}});
+  svg.handlers.pointermove({clientX:150,clientY:130,buttons:1,pointerId:1});
+  [dx,dy]=offsets();
+  assert.ok(Math.abs(dx-75)<1e-8&&Math.abs(dy-45.5)<1e-8,'drag distance is converted to SVG units');
  }finally{installed.restore();}
 });
 
