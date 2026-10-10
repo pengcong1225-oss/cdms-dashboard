@@ -112,3 +112,6 @@ body{font-size:14px}
 #dashboard[data-aspect="4:3"] #map .map-tooltip.institution-tooltip{width:310px}
 #dashboard[data-aspect="4:3"] .institution-tooltip-heading strong{font-size:15px}
 #dashboard[data-aspect="4:3"] .institution-tooltip-stats p{font-size:13px}
+
+/* Reclaim the map title row while keeping the panel edge clear. */
+#geography .panel-body{padding-top:8px}
