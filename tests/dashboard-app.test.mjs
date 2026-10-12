@@ -47,7 +47,7 @@ test('real dashboard app limits yearly refresh, preserves map navigation and iso
    let data;
    if(url.pathname.endsWith('/screening'))data=[{orgId:org,orgName:'机构',sqScreeningCount:screening,score16Count:2,lungFuncExamCount:4}];
    if(url.pathname.endsWith('/follow-up'))data=[{orgId:org,visitCount:3}];
-   if(url.pathname.endsWith('/population'))data={total:7,qualityPassed:4,genderDistribution:{男:7},ageBuckets:{'60+':7},goldDistribution:{'GOLD 1-2级':4},goldGradedTotal:4,goldUngraded:3,riskDistribution:{低风险:7},abeDistribution:{A:7},comorbidities:{高血压:3}};
+   if(url.pathname.endsWith('/population'))data={total:7,qualityPassed:4,genderDistribution:{男:7},ageBuckets:{'60+':7},goldDistribution:{'GOLD 1-2级':4},goldGradedTotal:4,goldUngraded:3,riskDistribution:{低风险:4,中高风险:2,未评估:1},abeDistribution:{A:7},comorbidities:{高血压:3}};
    if(url.pathname.endsWith('/high-risk'))data={total:9,pending:2};
    if(url.pathname.endsWith('/monitoring/stats'))data={managedPatientCount:monitorCount,boundPatientCount:4,activeAlertPatientCount:1,offlinePatientCount:2};
    if(url.pathname.endsWith('/dashboard/alerts'))data={records:[],total:0,current:1,size:3,pages:0};
@@ -60,6 +60,11 @@ test('real dashboard app limits yearly refresh, preserves map navigation and iso
   await import(`../src/dashboard/app.mjs?test=${Date.now()}`);await drain();
   const node=dom.node,points=node('#map #map-points'),scene=node('#map #map-scene'),svg=node('#map svg');
   assert.match(node('#gender').innerHTML,/确诊在管/);assert.match(points.innerHTML,new RegExp(org));
+  assert.match(node('#dashboard').innerHTML,/慢阻肺风险管理分组/);
+  assert.match(node('#risk-summary').innerHTML,/高风险[\s\S]*?<b>2<\/b>/);
+  assert.match(node('#risk-summary').innerHTML,/低风险[\s\S]*?<b>4<\/b>/);
+  assert.doesNotMatch(node('#risk-summary').innerHTML,/未评估|中高风险|<small>/);
+  assert.match(node('#abe-bars').innerHTML,/<small>100.0%<\/small>/);
   const globalMetric=node('#metric-1').innerHTML,globalWrites=node('#gender').writes;
   calls.length=0;
   svg.handlers.pointerover({target:{closest:selector=>selector==='[data-org]'?{dataset:{org}}:null}});await drain();

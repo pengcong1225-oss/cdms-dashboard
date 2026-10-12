@@ -17,7 +17,7 @@ document.querySelector('#dashboard').innerHTML=`<header class="topbar"><div clas
 <main class="layout"><aside class="left-column">
 ${panel('overview','筛查人群概况','年度 / 当前状态','<div id="overview-list"></div>')}
 ${panel('institutions','各基层筛查完成情况','年度事件',`<nav class="tabs" id="rank-tabs"><button class="active" data-key="sqScreeningCount">COPD-SQ</button><button data-key="lungFuncExamCount">肺功能</button><button data-key="score16Count">≥16分</button></nav><div id="ranking"></div><p class="footnote">按事件人次排序 · 点击机构联动地图</p>`,'<button class="text-button" id="all-institutions">明细 ↗</button>')}
-${panel('risk','COPD-SQ问卷风险','当前确诊在管','<div id="risk-summary"></div><div class="subheading">综合评估分组</div><div id="abe-bars"></div><p class="footnote">问卷≥16分为高风险 · 综合评估保留历史C/D</p>')}
+${panel('risk','慢阻肺风险管理分组','当前确诊在管','<div id="risk-summary"></div><div class="subheading">综合评估分组</div><div id="abe-bars"></div><p class="footnote">问卷≥16分为高风险 · 综合评估保留历史C/D</p>')}
 ${panel('gold','肺功能GOLD分级','当前确诊在管','<div id="gold-bars"></div><p id="gold-note" class="footnote"></p>')}
 </aside><div class="center-column"><div id="metrics" class="metrics"></div>
 ${panel('geography','','','<div id="map"></div>')}
@@ -77,7 +77,9 @@ add('population',['population'],()=>{
  document.querySelector('#age').innerHTML=bars(p?.ageBuckets,p?.total);
  document.querySelector('#gold-bars').innerHTML=bars(p?.goldDistribution,p?.goldGradedTotal);
  document.querySelector('#gold-note').textContent=`占比分母：已分级 ${fmt(p?.goldGradedTotal)} 人 · 未分级 ${fmt(p?.goldUngraded)} 人`;
- document.querySelector('#risk-summary').innerHTML=bars(p?.riskDistribution,p?.total);
+ const risks=p?.riskDistribution;
+ const riskCounts=risks==null?null:Object.fromEntries([['高风险',risks['高风险']??risks['中高风险']],['低风险',risks['低风险']]].filter(([,value])=>value!=null));
+ document.querySelector('#risk-summary').innerHTML=bars(riskCounts,p?.total,{showPercent:false});
  document.querySelector('#abe-bars').innerHTML=bars(p?.abeDistribution,p?.total);
  document.querySelector('#quality-ring').innerHTML=ring(p?{'已通过':p.qualityPassed,'未通过 / 待质控':Math.max(0,p.total-p.qualityPassed)}:null,p?.total,'档案人数');
  renderInsight();

@@ -149,3 +149,6 @@ body{font-size:14px}
 
 #map .street-label{font-size:16px}
 #map .institution text{font-size:14px}
+
+#dashboard #risk-summary .counts-only{grid-template-columns:75px minmax(20px,1fr) 48px}
+#dashboard[data-aspect='4:3'] #risk-summary .counts-only{grid-template-columns:65px minmax(16px,1fr) 42px}

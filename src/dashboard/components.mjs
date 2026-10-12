@@ -1,9 +1,9 @@
 import {formatNumber as fmt,escapeHtml as esc,distribution} from './model.mjs';
-export function bars(values,total,{limit=99}={}) {
+export function bars(values,total,{limit=99,showPercent=true}={}) {
  if(values==null)return '<div class="empty">等待管理端统计</div>';
  const items=distribution(values,total).slice(0,limit);
  if(!items.length)return '<div class="empty">当前范围暂无数据</div>';
- return items.map((r,i)=>`<div class="bar-row"><span title="${esc(r.name)}">${esc(r.name)}</span><div class="track"><i style="width:${r.width}%;--bar:${['#36c7ef','#7490ff','#db79ed','#19cead','#ecad4a'][i%5]}"></i></div><b>${fmt(r.value)}</b><small>${r.percent.toFixed(1)}%</small></div>`).join('');
+ return items.map((r,i)=>`<div class="bar-row${showPercent?'':' counts-only'}"><span title="${esc(r.name)}">${esc(r.name)}</span><div class="track"><i style="width:${r.width}%;--bar:${['#36c7ef','#7490ff','#db79ed','#19cead','#ecad4a'][i%5]}"></i></div><b>${fmt(r.value)}</b>${showPercent?`<small>${r.percent.toFixed(1)}%</small>`:''}</div>`).join('');
 }
 export function metric(label,value,unit,note,color='cyan') {
  return `<article class="metric ${color}"><span>${esc(label)}</span><div><strong>${fmt(value)}</strong><small>${unit}</small></div><p>${esc(note)}</p></article>`;
