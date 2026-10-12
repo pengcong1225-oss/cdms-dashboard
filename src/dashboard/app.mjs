@@ -24,7 +24,7 @@ ${panel('geography','','','<div id="map"></div>')}
 ${panel('insights','慢阻肺共病统计','当前确诊在管',`<div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
 </div><aside class="right-column">
 ${panel('overview','筛查人群概况','年度 / 当前状态','<div id="overview-list"></div>')}
-${panel('gold','肺功能GOLD分级','当前确诊在管','<div id="gold-bars"></div><p id="gold-note" class="footnote"></p>')}
+${panel('gold','肺功能GOLD分级','当前确诊在管','<div id="gold-bars"></div>')}
 ${panel('risk','慢阻肺风险管理分组','当前确诊在管','<div id="risk-summary"></div><div class="subheading">综合评估分组</div><div id="abe-bars"></div><p class="footnote">问卷≥16分为高风险 · 综合评估保留历史C/D</p>')}
 ${panel('quality','肺功能二级质控情况','当前确诊在管','<div id="quality-ring"></div><p class="footnote">患者档案质控口径</p>')}
 </aside></main><footer class="page-footer">数据来源：CDMS管理端 · 普通统计60秒更新 / 监测20秒更新 <a id="legacy-entry" hidden href="${mountedUrl('legacy.html')}">旧版兼容入口 ↗</a></footer>`;
@@ -77,10 +77,10 @@ const metricContent=[()=>metric('COPD-SQ筛查',sum(data.annual,'sqScreeningCoun
 metricContent.forEach((content,i)=>add(`metric-${i}`,metricSources[i],()=>document.querySelector(`#metric-${i}`).innerHTML=content()));
 add('population',['population'],()=>{
  const p=data.population;
- document.querySelector('#gender').innerHTML=ring(p?.genderDistribution,p?.total,'确诊在管');
- document.querySelector('#age').innerHTML=bars(p?.ageBuckets,p?.total);
+ const withoutUnknown=values=>values==null?null:Object.fromEntries(Object.entries(values).filter(([name])=>name!=='未知'));
+ document.querySelector('#gender').innerHTML=ring(withoutUnknown(p?.genderDistribution),p?.total,'确诊在管');
+ document.querySelector('#age').innerHTML=bars(withoutUnknown(p?.ageBuckets),p?.total);
  document.querySelector('#gold-bars').innerHTML=bars(p?.goldDistribution,p?.goldGradedTotal);
- document.querySelector('#gold-note').textContent=`占比分母：已分级 ${fmt(p?.goldGradedTotal)} 人 · 未分级 ${fmt(p?.goldUngraded)} 人`;
  const risks=p?.riskDistribution;
  const riskCounts=risks==null?null:Object.fromEntries([['高风险',risks['高风险']??risks['中高风险']],['低风险',risks['低风险']]].filter(([,value])=>value!=null));
  document.querySelector('#risk-summary').innerHTML=bars(riskCounts,p?.total,{showPercent:false});
