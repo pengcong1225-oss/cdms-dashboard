@@ -3,6 +3,34 @@ import assert from 'node:assert/strict';
 import {dashboardDom} from './dashboard-dom.mjs';
 
 const drain=async()=>{for(let i=0;i<8;i++)await new Promise(resolve=>setImmediate(resolve));};
+test('all authorized institutions remain selectable across ranking tabs and only assessed ABE groups render',async()=>{
+ const dom=dashboardDom(),session=dom.install();
+ const rows=Array.from({length:18},(_,i)=>({orgId:String(100+i),orgName:`机构${i+1}`,sqScreeningCount:18-i,lungFuncExamCount:i+1,score16Count:18-i}));
+ const geometry={type:'Polygon',coordinates:[[[0,0],[1,0],[1,1],[0,1],[0,0]]]};
+ globalThis.fetch=async input=>{
+  const url=new URL(input),path=url.pathname;
+  if(path.endsWith('/api/dashboard-config'))return Response.json({managerUiUrl:'/cdmsmanager/'});
+  if(path.endsWith('/api/map-config'))return Response.json({});
+  if(path.endsWith('/map/whkfq.json'))return Response.json({features:[{geometry}]});
+  if(path.endsWith('/map/streets.json'))return Response.json({features:[]});
+  return Response.json({code:200,data:path.endsWith('/screening')?rows:path.endsWith('/follow-up')?[]:path.endsWith('/population')?{total:100,abeDistribution:{未分组:70,未评估:10,A:10,B组:5,C:2,D组:2,E:1}}:path.endsWith('/dashboard/alerts')?{records:[],total:0,current:1,size:5,pages:0}:{}});
+ };
+ try{
+  await import(`../src/dashboard/app.mjs?all-institutions=${Date.now()}`);await drain();
+  const rank=()=>dom.node('#ranking').innerHTML;
+  assert.equal((rank().match(/class="rank-row/g)??[]).length,18);
+  assert.ok(rank().indexOf('data-org="100"')<rank().indexOf('data-org="117"'));
+  dom.node('#rank-tabs').onclick({target:{dataset:{key:'lungFuncExamCount'}}});
+  assert.equal((rank().match(/class="rank-row/g)??[]).length,18);
+  assert.ok(rank().indexOf('data-org="117"')<rank().indexOf('data-org="100"'));
+  dom.document.click({target:{closest:()=>({dataset:{org:'117'}})}});await drain();
+  assert.equal(dom.node('#scope').value,'117');
+  const groups=dom.node('#abe-bars').innerHTML;
+  assert.doesNotMatch(groups,/未分组|未评估/);
+  for(const name of ['A','B组','C','D组','E'])assert.ok(groups.includes(`title="${name}"`));
+  assert.match(groups,/<small>10.0%<\/small>/,'hiding unknown groups must not change the population denominator');
+ }finally{session.restore();}
+});
 test('statistics start and render while map and navigation configuration are still loading',async()=>{
  const dom=dashboardDom(),session=dom.install(),calls=[];
  let releaseConfig,releaseMap;

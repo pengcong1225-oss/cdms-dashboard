@@ -14,8 +14,8 @@ body{font-size:14px}
 .connection,.panel-state{display:none}
 .layout{flex:1;height:auto;min-height:0;grid-template-columns:minmax(0,22fr) minmax(0,56fr) minmax(0,22fr);gap:12px;padding:10px 14px 0}
 .left-column,.center-column,.right-column{display:grid;gap:12px;min-height:0}
-.left-column{grid-template-rows:minmax(0,1fr) minmax(0,1.45fr) minmax(0,1.25fr)}
-.right-column{grid-template-rows:minmax(0,1.2fr) minmax(0,.85fr) minmax(0,1.45fr) minmax(0,.85fr)}
+.left-column{grid-template-rows:310px 245px minmax(0,1fr)}
+.right-column{grid-template-rows:236px 180px 250px minmax(0,1fr)}
 .center-column{grid-template-rows:120px minmax(0,1fr) 260px}
 .panel,.center-column #geography,.center-column #insights,#monitoring{min-height:0;min-width:0}
 .panel>header{padding:10px 12px 6px;min-height:40px}
@@ -133,8 +133,6 @@ body{font-size:14px}
 #dashboard[data-aspect="4:3"] .institution-tooltip-stats p{font-size:15px}
 
 /* Client-approved column order and legacy map styling. */
-.left-column{grid-template-rows:minmax(0,1.2fr) minmax(0,1.45fr) minmax(0,1.45fr) minmax(0,.85fr)}
-.right-column{grid-template-rows:minmax(0,1fr) minmax(0,.85fr) minmax(0,1.25fr)}
 #map .street-label,#map .institution text{font-family:'Microsoft YaHei','PingFang SC',sans-serif;fill:#d6e8f4}
 #map .district-outline{fill:url(#map-fill);opacity:.9;stroke:#78c3dd}
 #map .street-region{stroke:#83c5dd66}
@@ -142,10 +140,9 @@ body{font-size:14px}
 #map .street-tooltip-hint{display:block;margin:0;padding:0 16px 14px;font-size:12px;color:#6ccbe8}
 
 /* Keep overview and GOLD notes visible; scroll only the institution rows. */
-.left-column{grid-template-rows:236px minmax(0,1fr) 270px 180px}
 #institutions .panel-body{display:flex;flex-direction:column;min-height:0}
 #institutions .tabs,#institutions .footnote{flex:none}
-#ranking{flex:1;min-height:0;overflow:auto}
+#ranking{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 
 #map .street-label{font-size:16px}
 #map .institution text{font-size:14px}
