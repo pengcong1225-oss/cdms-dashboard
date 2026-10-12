@@ -13,6 +13,7 @@ export function ring(values,total,label) {
  const colors=['#39c5ef','#ee6dbd','#526585'];
  let pos=0;const entries=Object.entries(values);
  const stops=entries.map(([,value],i)=>{const start=pos;pos+=total?Number(value)/total*100:0;return `${colors[i%3]} ${start}% ${pos}%`;});
+ if(total&&pos<100)stops.push(`#243757 ${pos}% 100%`);
  return `<div class="ring-row"><div class="ring" style="background:conic-gradient(${total?stops.join(','):'#243757'})"><div><b>${fmt(total)}</b><small>${esc(label)}</small></div></div><div class="legend">${entries.map(([key,n],i)=>`<div><i style="background:${colors[i%3]}"></i><span>${esc(key)}</span><b>${fmt(n)}</b><small>${total?(Number(n)/total*100).toFixed(1):'0.0'}%</small></div>`).join('')}</div></div>`;
 }
 export function statusText(state) {
