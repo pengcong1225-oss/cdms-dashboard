@@ -8,6 +8,7 @@ import {createAuthSession} from './auth.mjs';
 import {createAlertCarousel,renderAlertRecords} from './alert-carousel.mjs';
 import {createInstitutionStats} from './institution-stats.mjs';
 import {createPresentation} from './presentation.mjs';
+import {createRankingScroll} from './ranking-scroll.mjs';
 const mountedUrl=path=>dashboardUrl(path,document.baseURI);
 
 const panel=(id,title,note,body,actions='')=>`<section class="panel" id="${id}">${title?`<header><h2>${title}</h2><small>${note}</small>${actions}</header>`:''}<div class="panel-body">${body}</div><footer class="panel-state"></footer></section>`;
@@ -16,7 +17,7 @@ document.querySelector('#dashboard').innerHTML=`<header class="topbar"><div clas
 <div id="auth-gate" class="auth-gate" hidden><section class="auth-card" aria-labelledby="auth-title"><h2 id="auth-title">管理端登录</h2><p id="auth-message" role="status"></p><a id="auth-login" class="button" href="/cdmsmanager/login" target="_blank" rel="noopener">登录管理端 ↗</a><button id="auth-retry" hidden>重试连接</button></section></div>
 <main class="layout"><aside class="left-column">
 ${panel('population','患者性别与年龄分布','当前确诊在管','<div id="gender"></div><div id="age" class="age-bars"></div>')}
-${panel('institutions','各基层筛查完成情况','年度事件',`<nav class="tabs" id="rank-tabs"><button class="active" data-key="sqScreeningCount">COPD-SQ</button><button data-key="lungFuncExamCount">肺功能</button><button data-key="score16Count">≥16分</button></nav><div id="ranking"></div><p class="footnote">按事件人次排序 · 点击机构联动地图</p>`,'<button class="text-button" id="all-institutions">明细 ↗</button>')}
+${panel('institutions','各基层筛查完成情况','年度事件',`<nav class="tabs" id="rank-tabs"><button class="active" data-key="sqScreeningCount">COPD-SQ</button><button data-key="lungFuncExamCount">肺功能</button><button data-key="score16Count">≥16分</button></nav><div id="ranking"></div><div class="ranking-controls"><button id="ranking-pause" class="text-button" aria-pressed="false">暂停滚动</button></div><p class="footnote">按事件人次排序 · 点击机构联动地图</p>`,'<button class="text-button" id="all-institutions">明细 ↗</button>')}
 ${panel('monitoring','穿戴设备与预警动态','实时状态','<div id="wearable" class="mini-grid"></div><div id="alert-carousel"><div class="subheading"><span>当前未处理告警</span></div><div id="alerts" role="list"></div><nav class="alert-controls" aria-label="当前告警轮播"><button id="alert-prev" aria-label="上一组告警">‹</button><span id="alert-page" aria-live="polite"></span><button id="alert-next" aria-label="下一组告警">›</button><button id="alert-pause" aria-pressed="false">暂停轮播</button></nav></div>')}
 </aside><div class="center-column"><div id="metrics" class="metrics"></div>
 ${panel('geography','','','<div id="map"></div>')}
@@ -33,6 +34,9 @@ const currentYear=new Date().getFullYear(),yearEl=document.querySelector('#year'
 for(let year=currentYear;year>=2024;year--)yearEl.add(new Option(`${year}年`,year));
 let metadata={},map,rankKey='sqScreeningCount',activeToken=null,detailSource=null;
 const carousel=createAlertCarousel();
+const rankingScroll=createRankingScroll(document.querySelector('#ranking'));
+setInterval(()=>rankingScroll.tick(),50);
+document.querySelector('#ranking-pause').onclick=()=>{const paused=rankingScroll.togglePause(),button=document.querySelector('#ranking-pause');button.textContent=paused?'\u7ee7\u7eed\u6eda\u52a8':'\u6682\u505c\u6eda\u52a8';button.setAttribute('aria-pressed',String(paused));};
 const institutionStats=createInstitutionStats({request:requestData});
 const auth=createAuthSession({storage:localStorage,refreshUrl:new URL('/cdmsmanagerapi/api/v1/auth/refresh',document.baseURI).href,onChange:applySession});
 const endpoints={annual:'/dashboard/screening',followup:'/dashboard/follow-up',population:'/dashboard/population',highrisk:'/dashboard/high-risk',monitoring:'/monitoring/stats',alerts:'/dashboard/alerts'};
@@ -86,7 +90,10 @@ add('population',['population'],()=>{
 });
 add('ranking',['annual','scope','rank'],()=>{
  const a=data.annual,ranks=a?rankRows(a,rankKey):null;
+ const previousScroll=document.querySelector('#ranking').scrollTop||0;
  document.querySelector('#ranking').innerHTML=ranks?.length?ranks.map((r,i)=>`<button class="rank-row ${String(r.orgId)===scopeEl.value?'selected':''}" data-org="${esc(r.orgId)}"><span class="rank-number">${String(i+1).padStart(2,'0')}</span><span class="rank-label" title="${esc(r.orgName)}">${esc(metadata[String(r.orgId)]?.shortName??r.orgName)}</span><div class="rank-track"><i style="width:${r.share}%"></i></div><b>${fmt(r.value)}</b><small>${r.share.toFixed(1)}%</small></button>`).join(''):`<div class="empty">${a?'当前范围暂无机构数据':'等待管理端机构统计'}</div>`;
+ document.querySelector('#ranking').scrollTop=previousScroll;
+ rankingScroll.refresh(`${yearEl.value}:${scopeEl.value}:${rankKey}`);
 });
 add('wearable',['monitoring'],()=>{
  const m=data.monitoring;

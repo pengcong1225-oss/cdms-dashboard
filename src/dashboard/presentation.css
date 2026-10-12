@@ -149,3 +149,7 @@ body{font-size:14px}
 
 #dashboard #risk-summary .counts-only{grid-template-columns:75px minmax(20px,1fr) 48px}
 #dashboard[data-aspect='4:3'] #risk-summary .counts-only{grid-template-columns:65px minmax(16px,1fr) 42px}
+
+#institutions .ranking-controls{flex:none;display:flex;justify-content:flex-end;height:18px;line-height:18px}
+#institutions .ranking-controls .text-button{font-size:10px;padding:0}
+#institutions .footnote{margin-top:2px}
