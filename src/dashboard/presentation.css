@@ -165,3 +165,52 @@ body{font-size:16px}
 @media (prefers-reduced-motion:reduce){#map .institution.hospital .medical-symbol,.brand:after,.panel h2:before{animation:none}}
 
 #dashboard[data-aspect="4:3"] .age-bars .bar-row{grid-template-columns:80px minmax(16px,1fr) 32px 38px}
+
+/* Large-type dashboard for viewing from a distance. */
+.layout{grid-template-columns:minmax(0,26fr) minmax(0,48fr) minmax(0,26fr)}
+.panel h2{font-size:22px;letter-spacing:0}
+.panel header small{font-size:13px}
+.metric>span{font-size:18px}.metric p{font-size:14px}
+.legend,.bar-row,.tabs button,.rank-row,.overview-row,#risk .bar-row,.subheading,.comorbidity-grid .bar-row{font-size:20px;line-height:26px}
+.legend small,.bar-row small,.rank-row small,.overview-row small{font-size:14px}
+.legend>div{gap:6px}.legend>div span{white-space:normal}
+.bar-row{grid-template-columns:100px minmax(16px,1fr) 44px 50px}
+.rank-row{grid-template-columns:28px 90px minmax(0,1fr) 62px 48px;min-height:40px}
+.overview-row{margin:2px 0;min-height:27px;line-height:27px}.overview-row b{font-size:26px}
+.right-column{grid-template-rows:280px 204px 270px minmax(0,1fr)}
+#risk .bar-row,#gold .bar-row{margin:6px 0}
+#dashboard #risk-summary .counts-only{grid-template-columns:100px minmax(16px,1fr) 48px}
+.comorbidity-grid{gap:16px}.comorbidity-grid .bar-row{font-size:18px;grid-template-columns:110px minmax(12px,1fr) 34px 44px;margin:10px 0;gap:4px}
+.mini-grid span{font-size:16px}#wearable .mini-value{font-size:26px}
+#alert-carousel .alert-row{font-size:18px;line-height:22px;grid-template-columns:5px 62px minmax(0,1fr) 80px;gap:5px}
+#alert-carousel .alert-row time{font-size:13px}
+#map .street-label{font-size:20px}#map .institution text{font-size:18px}
+#quality .ring{width:100px}.footnote{font-size:13px}
+#dashboard[data-aspect="4:3"] .panel h2{font-size:20px}
+#dashboard[data-aspect="4:3"] .metric>span{font-size:16px}
+#dashboard[data-aspect="4:3"] .metric p{font-size:12px}
+#dashboard[data-aspect="4:3"] .legend,#dashboard[data-aspect="4:3"] .overview-row,#dashboard[data-aspect="4:3"] .bar-row,#dashboard[data-aspect="4:3"] .rank-row{font-size:18px}
+#dashboard[data-aspect="4:3"] .legend small{font-size:12px}
+#dashboard[data-aspect="4:3"] .bar-row{grid-template-columns:90px minmax(12px,1fr) 34px 42px;gap:4px}
+#dashboard[data-aspect="4:3"] .age-bars .bar-row{grid-template-columns:105px minmax(12px,1fr) 34px 42px}
+#dashboard[data-aspect="4:3"] .rank-row{grid-template-columns:25px 70px minmax(0,1fr) 55px 42px}
+#dashboard[data-aspect="4:3"] .comorbidity-grid .bar-row{font-size:16px;grid-template-columns:88px minmax(8px,1fr) 28px 37px;gap:3px}
+#dashboard[data-aspect="4:3"] #alert-carousel .alert-row{font-size:16px;grid-template-columns:5px 50px minmax(0,1fr) 70px;line-height:20px}
+#dashboard[data-aspect="4:3"] #wearable .mini-value{font-size:24px}
+#dashboard[data-aspect="4:3"] .mini-grid span{font-size:14px}
+
+.age-bars .bar-row{grid-template-columns:120px minmax(16px,1fr) 44px 50px}
+.right-column{grid-template-rows:280px 184px 260px minmax(0,1fr)}
+.overview-row{margin:0;min-height:27px;line-height:27px}
+#risk .bar-row{margin:3px 0}
+.comorbidity-grid .bar-row{line-height:24px;margin:6px 0}
+#quality .ring-row{margin:0;min-height:100px}
+#quality .legend{font-size:18px;line-height:22px}
+#quality .footnote{margin-top:4px}
+.metric strong{font-size:32px}.metric>span{font-size:16px}
+
+#gold .bar-row{margin:3px 0}
+#dashboard[data-aspect="4:3"] .metric{padding:7px 6px}
+#dashboard[data-aspect="4:3"] .metric>span{display:block;white-space:normal;line-height:20px;min-height:40px}
+#dashboard[data-aspect="4:3"] .metric strong{font-size:26px;line-height:1.3}
+#dashboard[data-aspect="4:3"] .metric p{margin-top:2px;line-height:16px;white-space:normal;font-size:11px}

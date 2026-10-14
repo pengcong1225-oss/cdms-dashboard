@@ -20,7 +20,7 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
  streetLayer.innerHTML=(streets?.features??[]).map(f=>{
   const center=f.properties.center,[x,y]=Array.isArray(center)?project(center):[0,0];
   if(Array.isArray(center)){
-   const width=Array.from(f.properties.name).length*16;
+   const width=Array.from(f.properties.name).length*20;
    const unproject=([px,py])=>[minX+(px-24)*(maxX-minX)/720,maxY-(py-70)*(maxY-minY)/402];
    const inside=point=>containsPoint(f.geometry,unproject(point))&&geo.features.some(d=>containsPoint(d.geometry,unproject(point)));
    const vertices=(f.geometry.type==='Polygon'?f.geometry.coordinates.flat():f.geometry.coordinates.flat(2)).map(project);
@@ -74,7 +74,7 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
    const center=item.shortName==='亚心';
    const symbol=center?'M0 -15L4.4 -4.9L15 -4.6L7.1 2.7L9.3 13.6L0 7.9L-9.3 13.6L-7.1 2.7L-15 -4.6L-4.4 -4.9Z':'M-2.5 -8H2.5V-2.5H8V2.5H2.5V8H-2.5V2.5H-8V-2.5H-2.5Z';
    const label=center?'亚总（经开区慢呼中心）':item.shortName??item.name;
-   const width=Math.min(940,Array.from(label).length*14),preferred=project([item.labelLng??item.lng,item.labelLat??item.lat]);
+   const width=Math.min(940,Array.from(label).length*18),preferred=project([item.labelLng??item.lng,item.labelLat??item.lat]);
    const [spreadX,spreadY]=({'亚心':[110,0],'碧湖':[-85,-45],'名逸':[0,-70],'新民':[35,-60]})[item.shortName]??[0,0];
    const [preferredX,preferredY]=[preferred[0]+spreadX,preferred[1]+spreadY];
    const clampX=value=>Math.max(20-marginX,Math.min(980+marginX-width,value));
