@@ -73,7 +73,7 @@ export function createMap(container,geo,metadata,onSelect,streets,onStreet,loadI
    const [x,y]=project([item.lng,item.lat]);
    const center=item.shortName==='亚心';
    const symbol=center?'M0 -15L4.4 -4.9L15 -4.6L7.1 2.7L9.3 13.6L0 7.9L-9.3 13.6L-7.1 2.7L-15 -4.6L-4.4 -4.9Z':'M-2.5 -8H2.5V-2.5H8V2.5H2.5V8H-2.5V2.5H-8V-2.5H-2.5Z';
-   const label=center?'亚心（经开区慢呼中心）':item.shortName??item.name;
+   const label=center?'亚总（经开区慢呼中心）':item.shortName??item.name;
    const width=Math.min(940,Array.from(label).length*14),preferred=project([item.labelLng??item.lng,item.labelLat??item.lat]);
    const [spreadX,spreadY]=({'亚心':[110,0],'碧湖':[-85,-45],'名逸':[0,-70],'新民':[35,-60]})[item.shortName]??[0,0];
    const [preferredX,preferredY]=[preferred[0]+spreadX,preferred[1]+spreadY];

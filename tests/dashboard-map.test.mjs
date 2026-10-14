@@ -90,7 +90,7 @@ test('labelled map keeps district fit, scoped street counts, drilldown and wheel
   map.update([{orgId:'a'},{orgId:'b'}]);
   const points=dom.node('#map #map-points'),svg=dom.node('#map svg'),tooltip=dom.node('#map .map-tooltip'),legend=dom.node('#map .map-street-legend');
   assert.doesNotMatch(points.innerHTML,/无权机构|data-org="hidden"/);
-  assert.match(points.innerHTML,/&lt;普通&gt;/);assert.match(points.innerHTML,/亚心（经开区慢呼中心）/);
+  assert.match(points.innerHTML,/&lt;普通&gt;/);assert.match(points.innerHTML,/亚总（经开区慢呼中心）/);
   assert.match(dom.node('created g').innerHTML,/street-label.*?西街/);
   assert.match(legend.innerHTML,/西街.*?<b>1<\/b>/);assert.match(legend.innerHTML,/东街.*?<b>1<\/b>/);
   assert.match(points.innerHTML,/<text x="20" y="22">&lt;普通&gt;/);

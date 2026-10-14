@@ -18,7 +18,7 @@ document.querySelector('#dashboard').innerHTML=`<header class="topbar"><div clas
 <main class="layout"><aside class="left-column">
 ${panel('population','患者性别与年龄分布','当前确诊在管','<div id="gender"></div><div id="age" class="age-bars"></div>')}
 ${panel('institutions','各基层筛查完成情况','年度事件',`<nav class="tabs" id="rank-tabs"><button class="active" data-key="sqScreeningCount">COPD-SQ</button><button data-key="lungFuncExamCount">肺功能</button><button data-key="score16Count">≥16分</button></nav><div id="ranking"></div><div class="ranking-controls"><button id="ranking-pause" class="text-button" aria-pressed="false">暂停滚动</button></div><p class="footnote">按事件人次排序 · 点击机构联动地图</p>`,'<button class="text-button" id="all-institutions">明细 ↗</button>')}
-${panel('monitoring','穿戴设备与预警动态','实时状态','<div id="wearable" class="mini-grid"></div><div id="alert-carousel"><div class="subheading"><span>当前未处理告警</span></div><div id="alerts" role="list"></div><nav class="alert-controls" aria-label="当前告警轮播"><button id="alert-prev" aria-label="上一组告警">‹</button><span id="alert-page" aria-live="polite"></span><button id="alert-next" aria-label="下一组告警">›</button><button id="alert-pause" aria-pressed="false">暂停轮播</button></nav></div>')}
+${panel('monitoring','智能穿戴与预警','实时状态','<div id="wearable" class="mini-grid"></div><div id="alert-carousel"><div class="subheading"><span>当前未处理告警</span></div><div id="alerts" role="list"></div><nav class="alert-controls" aria-label="当前告警轮播"><button id="alert-prev" aria-label="上一组告警">‹</button><span id="alert-page" aria-live="polite"></span><button id="alert-next" aria-label="下一组告警">›</button><button id="alert-pause" aria-pressed="false">暂停轮播</button></nav></div>')}
 </aside><div class="center-column"><div id="metrics" class="metrics"></div>
 ${panel('geography','','','<div id="map"></div>')}
 ${panel('insights','慢阻肺共病统计','当前确诊在管',`<div id="insight"></div><p id="insight-note" class="footnote"></p>`,'<button class="text-button" id="more-insights">更多 ↗</button>')}
@@ -85,7 +85,7 @@ add('population',['population'],()=>{
  const riskCounts=risks==null?null:Object.fromEntries([['高风险',risks['高风险']??risks['中高风险']],['低风险',risks['低风险']]].filter(([,value])=>value!=null));
  document.querySelector('#risk-summary').innerHTML=bars(riskCounts,p?.total,{showPercent:false});
  document.querySelector('#abe-bars').innerHTML=bars(p?.abeDistribution==null?null:Object.fromEntries(Object.entries(p.abeDistribution).filter(([name])=>/^[ABCDE](?:\u7ec4)?$/.test(name))),p?.total);
- document.querySelector('#quality-ring').innerHTML=ring(p?{'已通过':p.qualityPassed,'未通过 / 待质控':Math.max(0,p.total-p.qualityPassed)}:null,p?.total,'档案人数');
+ document.querySelector('#quality-ring').innerHTML=ring(p?{'已通过':p.qualityPassed,'未通过 / 待质控':Math.max(0,p.total-p.qualityPassed)}:null,p?.total,'档案人数',['#25c9ad','#f2b453','#526585']);
  renderInsight();
 });
 add('ranking',['annual','scope','rank'],()=>{

@@ -8,9 +8,8 @@ export function bars(values,total,{limit=99,showPercent=true}={}) {
 export function metric(label,value,unit,note,color='cyan') {
  return `<article class="metric ${color}"><span>${esc(label)}</span><div><strong>${fmt(value)}</strong><small>${unit}</small></div><p>${esc(note)}</p></article>`;
 }
-export function ring(values,total,label) {
+export function ring(values,total,label,colors=['#39c5ef','#ee6dbd','#526585']) {
  if(values==null)return `<div class="ring-row"><div class="ring unavailable"><div><b>—</b><small>${esc(label)}</small></div></div><span class="muted">等待管理端统计</span></div>`;
- const colors=['#39c5ef','#ee6dbd','#526585'];
  let pos=0;const entries=Object.entries(values);
  const stops=entries.map(([,value],i)=>{const start=pos;pos+=total?Number(value)/total*100:0;return `${colors[i%3]} ${start}% ${pos}%`;});
  if(total&&pos<100)stops.push(`#243757 ${pos}% 100%`);
