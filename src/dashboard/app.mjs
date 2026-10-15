@@ -25,7 +25,7 @@ ${panel('insights','慢阻肺共病统计','当前确诊在管',`<div id="insigh
 </div><aside class="right-column">
 ${panel('overview','筛查人群概况','年度 / 当前状态','<div id="overview-list"></div>')}
 ${panel('gold','肺功能GOLD分级','当前确诊在管','<div id="gold-bars"></div>')}
-${panel('risk','慢阻肺风险管理分组','当前确诊在管','<div id="risk-summary"></div><div class="subheading">综合评估分组</div><div id="abe-bars"></div><p class="footnote">问卷≥16分为高风险 · 综合评估保留历史C/D</p>')}
+${panel('risk','慢阻肺风险管理分组','当前确诊在管','<div id="risk-summary"></div><div class="subheading">综合评估分组</div><div id="abe-bars"></div>')}
 ${panel('quality','肺功能二级质控情况','当前确诊在管','<div id="quality-ring"></div><p class="footnote">患者档案质控口径</p>')}
 </aside></main><footer class="page-footer">数据来源：CDMS管理端 · 普通统计60秒更新 / 监测20秒更新 <a id="legacy-entry" hidden href="${mountedUrl('legacy.html')}">旧版兼容入口 ↗</a></footer>`;
 createPresentation({root:document.querySelector('#dashboard'),control:document.querySelector('#layout-mode')});
