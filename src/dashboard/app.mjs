@@ -84,7 +84,7 @@ add('population',['population'],()=>{
  const risks=p?.riskDistribution;
  const riskCounts=risks==null?null:Object.fromEntries([['高风险',risks['高风险']??risks['中高风险']],['低风险',risks['低风险']]].filter(([,value])=>value!=null));
  document.querySelector('#risk-summary').innerHTML=bars(riskCounts,p?.total,{showPercent:false});
- document.querySelector('#abe-bars').innerHTML=bars(p?.abeDistribution==null?null:Object.fromEntries(Object.entries(p.abeDistribution).filter(([name])=>/^[ABCDE](?:\u7ec4)?$/.test(name))),p?.total);
+ document.querySelector('#abe-bars').innerHTML=bars(p?.abeDistribution==null?null:Object.fromEntries(Object.entries(p.abeDistribution).filter(([name])=>/^[ABE](?:\u7ec4)?$/.test(name))),p?.classifiedTotal??p?.goldGradedTotal);
  document.querySelector('#quality-ring').innerHTML=ring(p?{'已通过':p.qualityPassed,'未通过 / 待质控':Math.max(0,p.total-p.qualityPassed)}:null,p?.total,'档案人数',['#25c9ad','#f2b453','#526585']);
  renderInsight();
 });

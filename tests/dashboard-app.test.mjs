@@ -13,7 +13,7 @@ test('all authorized institutions remain selectable across ranking tabs and only
   if(path.endsWith('/api/map-config'))return Response.json({});
   if(path.endsWith('/map/whkfq.json'))return Response.json({features:[{geometry}]});
   if(path.endsWith('/map/streets.json'))return Response.json({features:[]});
-  return Response.json({code:200,data:path.endsWith('/screening')?rows:path.endsWith('/follow-up')?[]:path.endsWith('/population')?{total:100,abeDistribution:{未分组:70,未评估:10,A:10,B组:5,C:2,D组:2,E:1}}:path.endsWith('/dashboard/alerts')?{records:[],total:0,current:1,size:5,pages:0}:{}});
+  return Response.json({code:200,data:path.endsWith('/screening')?rows:path.endsWith('/follow-up')?[]:path.endsWith('/population')?{total:100,classifiedTotal:16,abeDistribution:{未分组:70,未评估:10,A:10,B组:5,C:2,D组:2,E:1}}:path.endsWith('/dashboard/alerts')?{records:[],total:0,current:1,size:5,pages:0}:{}});
  };
  try{
   await import(`../src/dashboard/app.mjs?all-institutions=${Date.now()}`);await drain();
@@ -27,8 +27,9 @@ test('all authorized institutions remain selectable across ranking tabs and only
   assert.equal(dom.node('#scope').value,'117');
   const groups=dom.node('#abe-bars').innerHTML;
   assert.doesNotMatch(groups,/未分组|未评估/);
-  for(const name of ['A','B组','C','D组','E'])assert.ok(groups.includes(`title="${name}"`));
-  assert.match(groups,/<small>10.0%<\/small>/,'hiding unknown groups must not change the population denominator');
+  for(const name of ['A','B组','E'])assert.ok(groups.includes(`title="${name}"`));
+  assert.doesNotMatch(groups,/title="(?:C|D组)"/);
+  assert.match(groups,/<small>62.5%<\/small>/,'ABE percentage uses the common classified cohort, not all active patients');
  }finally{session.restore();}
 });
 test('statistics start and render while map and navigation configuration are still loading',async()=>{
@@ -75,7 +76,7 @@ test('real dashboard app limits yearly refresh, preserves map navigation and iso
    let data;
    if(url.pathname.endsWith('/screening'))data=[{orgId:org,orgName:'机构',sqScreeningCount:screening,score16Count:2,lungFuncExamCount:4}];
    if(url.pathname.endsWith('/follow-up'))data=[{orgId:org,visitCount:3}];
-   if(url.pathname.endsWith('/population'))data={total:7,qualityPassed:4,genderDistribution:{男:7},ageBuckets:{'60+':7},goldDistribution:{'GOLD 1-2级':4},goldLevelDistribution:{'GOLD 4级':0,'GOLD 2级':3,'GOLD 1级':1,'GOLD 3级':0},goldGradedTotal:4,goldUngraded:3,riskDistribution:{低风险:4,中高风险:2,未评估:1},abeDistribution:{A:7},comorbidities:{高血压:3}};
+   if(url.pathname.endsWith('/population'))data={total:7,qualityPassed:4,genderDistribution:{男:7},ageBuckets:{'60+':7},goldDistribution:{'GOLD 1-2级':4},goldLevelDistribution:{'GOLD 4级':0,'GOLD 2级':3,'GOLD 1级':1,'GOLD 3级':0},goldGradedTotal:4,goldUngraded:3,classifiedTotal:4,riskDistribution:{低风险:3,高风险:1},abeDistribution:{A:1,B:2,E:1},comorbidities:{高血压:3}};
    if(url.pathname.endsWith('/high-risk'))data={total:9,pending:2};
    if(url.pathname.endsWith('/monitoring/stats'))data={managedPatientCount:monitorCount,boundPatientCount:4,activeAlertPatientCount:1,offlinePatientCount:2};
    if(url.pathname.endsWith('/dashboard/alerts'))data={records:[],total:0,current:1,size:3,pages:0};
@@ -91,10 +92,10 @@ test('real dashboard app limits yearly refresh, preserves map navigation and iso
   assert.match(node('#dashboard').innerHTML,/慢阻肺风险管理分组/);
   assert.deepEqual([...node('#gold-bars').innerHTML.matchAll(/title="(GOLD [1-4]级)"/g)].map(m=>m[1]),['GOLD 1级','GOLD 2级','GOLD 3级','GOLD 4级']);
   assert.match(node('#gold-bars').innerHTML,/75.0%/);
-  assert.match(node('#risk-summary').innerHTML,/高风险[\s\S]*?<b>2<\/b>/);
-  assert.match(node('#risk-summary').innerHTML,/低风险[\s\S]*?<b>4<\/b>/);
+  assert.match(node('#risk-summary').innerHTML,/高风险[\s\S]*?<b>1<\/b>/);
+  assert.match(node('#risk-summary').innerHTML,/低风险[\s\S]*?<b>3<\/b>/);
   assert.doesNotMatch(node('#risk-summary').innerHTML,/未评估|中高风险|<small>/);
-  assert.match(node('#abe-bars').innerHTML,/<small>100.0%<\/small>/);
+  assert.match(node('#abe-bars').innerHTML,/<small>50.0%<\/small>/);
   const globalMetric=node('#metric-1').innerHTML,globalWrites=node('#gender').writes;
   calls.length=0;
   svg.handlers.pointerover({target:{closest:selector=>selector==='[data-org]'?{dataset:{org}}:null}});await drain();
