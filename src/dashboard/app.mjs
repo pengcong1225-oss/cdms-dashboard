@@ -80,7 +80,7 @@ add('population',['population'],()=>{
  const withoutUnknown=values=>values==null?null:Object.fromEntries(Object.entries(values).filter(([name])=>name!=='未知'));
  document.querySelector('#gender').innerHTML=ring(withoutUnknown(p?.genderDistribution),p?.total,'确诊在管');
  document.querySelector('#age').innerHTML=bars(withoutUnknown(p?.ageBuckets),p?.total);
- document.querySelector('#gold-bars').innerHTML=bars(p?.goldDistribution,p?.goldGradedTotal);
+ document.querySelector('#gold-bars').innerHTML=bars(p?.goldLevelDistribution,p?.goldGradedTotal,{order:['GOLD 1级','GOLD 2级','GOLD 3级','GOLD 4级']});
  const risks=p?.riskDistribution;
  const riskCounts=risks==null?null:Object.fromEntries([['高风险',risks['高风险']??risks['中高风险']],['低风险',risks['低风险']]].filter(([,value])=>value!=null));
  document.querySelector('#risk-summary').innerHTML=bars(riskCounts,p?.total,{showPercent:false});

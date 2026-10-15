@@ -1,7 +1,9 @@
 import {formatNumber as fmt,escapeHtml as esc,distribution} from './model.mjs';
-export function bars(values,total,{limit=99,showPercent=true}={}) {
+export function bars(values,total,{limit=99,showPercent=true,order}={}) {
  if(values==null)return '<div class="empty">等待管理端统计</div>';
- const items=distribution(values,total).slice(0,limit);
+ const rows=distribution(values,total);
+ if(order)rows.sort((a,b)=>order.indexOf(a.name)-order.indexOf(b.name));
+ const items=rows.slice(0,limit);
  if(!items.length)return '<div class="empty">当前范围暂无数据</div>';
  return items.map((r,i)=>`<div class="bar-row${showPercent?'':' counts-only'}"><span title="${esc(r.name)}">${esc(r.name)}</span><div class="track"><i style="width:${r.width}%;--bar:${['#36c7ef','#7490ff','#db79ed','#19cead','#ecad4a'][i%5]}"></i></div><b>${fmt(r.value)}</b>${showPercent?`<small>${r.percent.toFixed(1)}%</small>`:''}</div>`).join('');
 }
